@@ -26,12 +26,12 @@ body{
   font:15.5px/1.6 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* Header */
-.mast{max-width:980px;margin:28px auto 8px;padding:0 18px;border-bottom:2px solid var(--fg)}
+/* Header – gọn, chỉ 1 kẻ */
+.mast{max-width:980px;margin:28px auto 12px;padding:0 18px;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .brand h1{margin:0;font:900 38px/1 "Merriweather", serif;letter-spacing:.02em}
 .brand .date{font:500 13px/1.2 "Inter";color:var(--muted)}
-.rule{margin:8px 0 16px;border-top:4px double var(--fg);border-bottom:1px solid var(--fg);height:7px}
+.rule{display:none} /* Ẩn kẻ đôi cũ */
 
 /* List */
 .wrap{max-width:980px;margin:0 auto 48px;padding:0 18px}
@@ -45,21 +45,17 @@ body{
 }
 .time{font:600 12px/1.2 "Inter"; color:var(--muted); white-space:nowrap}
 
+/* Khu nội dung mở rộng (accordion) */
+.entry{background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:0 16px 12px}
+.entry .entry-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.entry .entry-title{font-weight:800; cursor:pointer; text-decoration:underline; text-decoration-color:rgba(14,165,233,.35); text-underline-offset:3px}
+.entry .entry-time{font:600 12px/1.2 "Inter"; color:var(--muted); white-space:nowrap}
+.entry .entry-body{display:none; border-top:1px dashed var(--border); padding-top:12px}
+.entry.open .entry-body{display:block}
+.entry .content{font-size:16.5px}
+
 /* Loading */
 .center{display:flex;justify-content:center;margin:20px 0;color:var(--muted);font-weight:600}
-
-/* Modal đọc bài */
-.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.5);padding:22px}
-.modal.open{display:grid}
-.sheet{
-  width:min(860px,96vw); max-height:88vh; overflow:auto;
-  background:var(--panel); color:var(--fg); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);
-  padding:22px;
-}
-.sheet h2{margin:0 0 8px;font:800 28px/1.25 "Inter"}
-.sheet .meta{font:600 12px/1.2 "Inter"; color:var(--muted); margin:0 0 10px}
-.sheet .content{font-size:16.5px}
-.btn{border:1px solid var(--border); background:var(--panel); color:var(--fg); padding:8px 12px; border-radius:10px; cursor:pointer; font:600 13px "Inter"}
 </style>
 </head>
 <body>
@@ -76,22 +72,12 @@ body{
   <div id="loading" class="center">Đang tải bài…</div>
 </div>
 
-<!-- Modal -->
-<div id="modal" class="modal" aria-hidden="true">
-  <article class="sheet" role="dialog" aria-modal="true">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
-      <button id="close" class="btn">Đóng (Esc)</button>
-      <div class="meta" id="mMeta"></div>
-    </div>
-    <h2 id="mTitle"></h2>
-    <div class="content" id="mContent"></div>
-  </article>
-</div>
-
 <script>
 /* ==== CONFIG ==== */
 const BLOG_BASE = "https://blognofivn.blogspot.com"; // đổi blog ở đây
 const WANT_MAX  = 50;                                 // số bài tối đa
+const TYPE_CPM  = 320;                                  // 90 ký tự/phút
+const TYPE_DELAY = Math.max(40, Math.round(60000 / TYPE_CPM)); // ms/char (≈ 666ms)
 document.getElementById('now').textContent = new Date().toLocaleString('vi-VN');
 
 /* ==== Utils ==== */
@@ -143,7 +129,7 @@ function normalize(e){
   };
 }
 
-/* ==== Typewriter theo GRAPHEME (không vỡ dấu) ==== */
+/* ==== Typewriter theo GRAPHEME (không vỡ dấu) – chỉ dùng cho TIÊU ĐỀ ==== */
 function splitGraphemes(str){
   if (window.Intl && Intl.Segmenter){
     const seg = new Intl.Segmenter('vi',{granularity:'grapheme'});
@@ -151,93 +137,68 @@ function splitGraphemes(str){
   }
   return Array.from(str); // fallback
 }
-function typewriterText(el, text, speed=10){
+function typewriterText(el, text, delay=TYPE_DELAY){
   return new Promise(resolve=>{
     const units = splitGraphemes(text || '');
     let i=0; el.textContent='';
     (function tick(){
       if(i<=units.length){
         el.textContent = units.slice(0,i).join('');
-        i++; requestAnimationFrame(()=>setTimeout(tick, speed));
+        i++; setTimeout(tick, delay);
       } else resolve();
     })();
   });
 }
 
-/* ==== Typewriter HTML (giữ thẻ <p><br> của Blogger, không thưa dòng) ==== */
-function typewriterHTML(el, html, speed=10){
-  // tách token: thẻ HTML hoặc text
-  const tokens = [];
-  const re = /<\/?[^>]+>|[^<]+/g;
-  let m;
-  while((m = re.exec(html)) !== null){ tokens.push(m[0]); }
-  el.innerHTML = '';
-  return new Promise(resolve=>{
-    (function nextToken(i){
-      if(i >= tokens.length) return resolve();
-      const t = tokens[i];
-      if(t.startsWith('<')){
-        // chèn thẻ ngay lập tức
-        el.insertAdjacentHTML('beforeend', t);
-        nextToken(i+1);
-      }else{
-        // gõ text trong token này
-        const chars = splitGraphemes(t);
-        let j=0;
-        (function typeChar(){
-          if(j < chars.length){
-            el.insertAdjacentText('beforeend', chars[j++]);
-            requestAnimationFrame(()=>setTimeout(typeChar, speed));
-          }else{
-            nextToken(i+1);
-          }
-        })();
-      }
-    })(0);
-  });
+/* ==== Accordion: chỉ mở 1 bài, không gõ nội dung ==== */
+let openedEntry = null;
+
+function renderAccordionItem(p){
+  const wrap = document.createElement('article');
+  wrap.className = 'entry';
+
+  wrap.innerHTML = `
+    <div class="entry-head">
+      <div class="entry-title" role="button" tabindex="0"></div>
+      <div class="entry-time">${fmt(p.published)}</div>
+    </div>
+    <div class="entry-body">
+      <div class="content"></div>
+    </div>
+  `;
+
+  const titleEl = wrap.querySelector('.entry-title');
+  const bodyEl  = wrap.querySelector('.entry-body');
+  const contentEl = wrap.querySelector('.content');
+
+  // gõ tiêu đề chậm theo 90 cpm
+  typewriterText(titleEl, p.title);
+
+  // set nội dung sẵn (GIỮ HTML blogger), nhưng ẩn cho tới khi mở
+  contentEl.innerHTML = p.html;
+
+  const open = ()=>{
+    if(openedEntry && openedEntry!==wrap){
+      openedEntry.classList.remove('open');
+    }
+    wrap.classList.toggle('open');
+    openedEntry = wrap.classList.contains('open') ? wrap : null;
+  };
+
+  titleEl.onclick = open;
+  titleEl.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); open(); } });
+
+  return wrap;
 }
 
-/* ==== Render danh sách: chỉ Title + Time, gõ tiêu đề tuần tự ==== */
-async function renderList(items){
+async function renderListAccordion(items){
   const list = $('#list'); list.innerHTML='';
   if(!items.length){ list.innerHTML='<div class="center">Chưa có bài công khai.</div>'; return; }
-
   for(const p of items){
-    const row = document.createElement('div');
-    row.className = 'item';
-    row.innerHTML = `
-      <div class="title" role="button" tabindex="0"></div>
-      <div class="time">${fmt(p.published)}</div>
-    `;
-    list.appendChild(row);
-
-    // gõ tiêu đề
-    await typewriterText(row.querySelector('.title'), p.title, 8);
-
-    const open = ()=> openModal(p);
-    row.querySelector('.title').onclick = open;
-    row.querySelector('.title').addEventListener('keydown', e=>{ if(e.key==='Enter') open(); });
+    const node = renderAccordionItem(p);
+    list.appendChild(node);
   }
 }
-
-/* ==== Modal đọc bài (gõ tiêu đề + HTML nội dung) ==== */
-async function openModal(p){
-  $('#mTitle').textContent = '';
-  $('#mMeta').textContent  = fmt(p.published);
-  const content = $('#mContent'); content.innerHTML='';
-
-  $('#modal').classList.add('open'); $('#modal').setAttribute('aria-hidden','false');
-
-  await typewriterText($('#mTitle'), p.title, 8);
-  await typewriterHTML(content, p.html, 6);
-}
-function closeModal(){
-  $('#modal').classList.remove('open');
-  $('#modal').setAttribute('aria-hidden','true');
-}
-$('#close').onclick = closeModal;
-$('#modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#modal').classList.contains('open')) closeModal(); });
 
 /* ==== Boot ==== */
 (async ()=>{
@@ -245,7 +206,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#modal').cla
     const raw = await fetchAllJSONP(BLOG_BASE, WANT_MAX);
     const posts = raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
     document.getElementById('loading').remove();
-    await renderList(posts);
+    await renderListAccordion(posts);
   }catch(err){
     document.getElementById('loading').textContent = 'Lỗi tải (JSONP): ' + err.message;
   }
