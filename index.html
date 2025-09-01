@@ -1,96 +1,255 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <title>Nofi.vn Circle Viewer</title>
-  <style>
-    body {
-      margin:0; 
-      background:#0f172a; 
-      color:#fff; 
-      font-family:system-ui, Arial;
-      display:flex;
-      flex-wrap:wrap;
-      gap:20px;
-      justify-content:center;
-      padding:20px;
-    }
-    .circle {
-      width:140px; height:140px;
-      border-radius:50%;
-      background:#1e293b;
-      color:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      font-size:14px;
-      font-weight:600;
-      cursor:pointer;
-      transition: all .4s ease;
-      overflow:hidden;
-      position:relative;
-    }
-    .circle.open {
-      width:80%;
-      height:auto;
-      border-radius:20px;
-      flex-direction:column;
-      padding:20px;
-      text-align:left;
-      align-items:flex-start;
-      font-size:15px;
-    }
-    .circle .content {
-      display:none;
-      margin-top:10px;
-      line-height:1.5;
-    }
-    .circle.open .content {
-      display:block;
-    }
-    .circle img {
-      width:100%; height:100%;
-      object-fit:cover;
-      border-radius:50%;
-      position:absolute; top:0; left:0;
-      z-index:0;
-      opacity:.7;
-    }
-    .circle .title {
-      z-index:1;
-      padding:10px;
-    }
-    .circle.open img { display:none; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nofi.vn • Bài mới</title>
+
+<!-- Font đẹp, hỗ trợ tiếng Việt -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Merriweather:wght@900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#f6f1ea; --fg:#171717; --muted:#6b7280; --border:#e6ded0; --panel:#ffffff; --accent:#0ea5e9;
+  --shadow:0 10px 26px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#111315; --panel:#171a1d; --fg:#e7e3db; --muted:#a7a29a; --border:#2a2e33; --accent:#5eead4; --shadow:0 12px 30px rgba(0,0,0,.4) }
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  font:15.5px/1.6 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Header */
+.mast{max-width:980px;margin:28px auto 8px;padding:0 18px;border-bottom:2px solid var(--fg)}
+.brand{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand h1{margin:0;font:900 38px/1 "Merriweather", serif;letter-spacing:.02em}
+.brand .date{font:500 13px/1.2 "Inter";color:var(--muted)}
+.rule{margin:8px 0 16px;border-top:4px double var(--fg);border-bottom:1px solid var(--fg);height:7px}
+
+/* List */
+.wrap{max-width:980px;margin:0 auto 48px;padding:0 18px}
+.list{display:grid;gap:10px}
+.item{
+  background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);
+  padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.title{
+  font-weight:800; cursor:pointer; text-decoration:underline; text-decoration-color:rgba(14,165,233,.35); text-underline-offset:3px;
+}
+.time{font:600 12px/1.2 "Inter"; color:var(--muted); white-space:nowrap}
+
+/* Loading */
+.center{display:flex;justify-content:center;margin:20px 0;color:var(--muted);font-weight:600}
+
+/* Modal đọc bài */
+.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.5);padding:22px}
+.modal.open{display:grid}
+.sheet{
+  width:min(860px,96vw); max-height:88vh; overflow:auto;
+  background:var(--panel); color:var(--fg); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);
+  padding:22px;
+}
+.sheet h2{margin:0 0 8px;font:800 28px/1.25 "Inter"}
+.sheet .meta{font:600 12px/1.2 "Inter"; color:var(--muted); margin:0 0 10px}
+.sheet .content{font-size:16.5px}
+.btn{border:1px solid var(--border); background:var(--panel); color:var(--fg); padding:8px 12px; border-radius:10px; cursor:pointer; font:600 13px "Inter"}
+</style>
 </head>
 <body>
+<header class="mast">
+  <div class="brand">
+    <h1>Nofi.vn</h1>
+    <div class="date" id="now"></div>
+  </div>
+  <div class="rule" aria-hidden="true"></div>
+</header>
+
+<div class="wrap">
+  <main id="list" class="list" aria-live="polite"></main>
+  <div id="loading" class="center">Đang tải bài…</div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal" aria-hidden="true">
+  <article class="sheet" role="dialog" aria-modal="true">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+      <button id="close" class="btn">Đóng (Esc)</button>
+      <div class="meta" id="mMeta"></div>
+    </div>
+    <h2 id="mTitle"></h2>
+    <div class="content" id="mContent"></div>
+  </article>
+</div>
 
 <script>
-async function loadPosts(){
-  const url = "https://superstore100.blogspot.com/feeds/posts/default?alt=json&max-results=12";
-  const res = await fetch(url);
-  const data = await res.json();
-  const entries = data.feed.entry || [];
-  entries.forEach(e=>{
-    const title = e.title.$t;
-    const content = (e.content && e.content.$t) || "";
-    const thumbMatch = content.match(/<img[^>]+src=["']([^"']+)/i);
-    const img = thumbMatch ? thumbMatch[1] : null;
+/* ==== CONFIG ==== */
+const BLOG_BASE = "https://blognofivn.blogspot.com"; // đổi blog ở đây
+const WANT_MAX  = 50;                                 // số bài tối đa
+document.getElementById('now').textContent = new Date().toLocaleString('vi-VN');
 
-    const div = document.createElement("div");
-    div.className="circle";
-    div.innerHTML = `
-      ${img?`<img src="${img}">`:""}
-      <div class="title">${title}</div>
-      <div class="content">${content}</div>
-    `;
-    div.onclick = ()=> div.classList.toggle("open");
-    document.body.appendChild(div);
+/* ==== Utils ==== */
+const $ = s => document.querySelector(s);
+const fmt = s => s ? new Date(s).toLocaleString('vi-VN') : '';
+
+/* ==== JSONP helper (không CORS) ==== */
+function jsonp(url){
+  return new Promise((resolve,reject)=>{
+    const cb = "cb_" + Math.random().toString(36).slice(2);
+    const sc = document.createElement('script');
+    sc.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
+    let done=false;
+    window[cb] = (data)=>{ done=true; resolve(data); cleanup(); };
+    sc.onerror = ()=>{ if(!done){ reject(new Error('JSONP load error')); cleanup(); } };
+    function cleanup(){ delete window[cb]; sc.remove(); }
+    document.body.appendChild(sc);
   });
 }
-loadPosts();
-</script>
+async function fetchAllJSONP(base=BLOG_BASE, wanted=WANT_MAX){
+  let url = base.replace(/\/?$/,'') + '/feeds/posts/default?alt=json-in-script&max-results=100';
+  const out = [];
+  for(let i=0;i<10 && out.length<wanted && url;i++){
+    const d = await jsonp(url);
+    const entries = (d.feed && d.feed.entry) || [];
+    out.push(...entries);
+    const next = (d.feed && d.feed.link || []).find(l=>l.rel==='next');
+    if(next && next.href){
+      url = next.href.replace('alt=json','alt=json-in-script');
+      if(!/alt=json-in-script/.test(url)) url += (url.includes('?')?'&':'?') + 'alt=json-in-script';
+    } else url = null;
+  }
+  return out.slice(0,wanted);
+}
 
+/* ==== Chuẩn hoá: GIỮ nguyên HTML của Blogger ==== */
+function sanitizeHTML(html=''){
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi,'')
+    .replace(/<style[\s\S]*?<\/style>/gi,'');
+}
+function normalize(e){
+  const title=(e.title&&e.title.$t)||'(Không tiêu đề)';
+  const html =(e.content&&e.content.$t)||(e.summary&&e.summary.$t)||'';
+  return {
+    title,
+    published:e.published?e.published.$t:'',
+    html:sanitizeHTML(html)
+  };
+}
+
+/* ==== Typewriter theo GRAPHEME (không vỡ dấu) ==== */
+function splitGraphemes(str){
+  if (window.Intl && Intl.Segmenter){
+    const seg = new Intl.Segmenter('vi',{granularity:'grapheme'});
+    return Array.from(seg.segment(str), s=>s.segment);
+  }
+  return Array.from(str); // fallback
+}
+function typewriterText(el, text, speed=10){
+  return new Promise(resolve=>{
+    const units = splitGraphemes(text || '');
+    let i=0; el.textContent='';
+    (function tick(){
+      if(i<=units.length){
+        el.textContent = units.slice(0,i).join('');
+        i++; requestAnimationFrame(()=>setTimeout(tick, speed));
+      } else resolve();
+    })();
+  });
+}
+
+/* ==== Typewriter HTML (giữ thẻ <p><br> của Blogger, không thưa dòng) ==== */
+function typewriterHTML(el, html, speed=10){
+  // tách token: thẻ HTML hoặc text
+  const tokens = [];
+  const re = /<\/?[^>]+>|[^<]+/g;
+  let m;
+  while((m = re.exec(html)) !== null){ tokens.push(m[0]); }
+  el.innerHTML = '';
+  return new Promise(resolve=>{
+    (function nextToken(i){
+      if(i >= tokens.length) return resolve();
+      const t = tokens[i];
+      if(t.startsWith('<')){
+        // chèn thẻ ngay lập tức
+        el.insertAdjacentHTML('beforeend', t);
+        nextToken(i+1);
+      }else{
+        // gõ text trong token này
+        const chars = splitGraphemes(t);
+        let j=0;
+        (function typeChar(){
+          if(j < chars.length){
+            el.insertAdjacentText('beforeend', chars[j++]);
+            requestAnimationFrame(()=>setTimeout(typeChar, speed));
+          }else{
+            nextToken(i+1);
+          }
+        })();
+      }
+    })(0);
+  });
+}
+
+/* ==== Render danh sách: chỉ Title + Time, gõ tiêu đề tuần tự ==== */
+async function renderList(items){
+  const list = $('#list'); list.innerHTML='';
+  if(!items.length){ list.innerHTML='<div class="center">Chưa có bài công khai.</div>'; return; }
+
+  for(const p of items){
+    const row = document.createElement('div');
+    row.className = 'item';
+    row.innerHTML = `
+      <div class="title" role="button" tabindex="0"></div>
+      <div class="time">${fmt(p.published)}</div>
+    `;
+    list.appendChild(row);
+
+    // gõ tiêu đề
+    await typewriterText(row.querySelector('.title'), p.title, 8);
+
+    const open = ()=> openModal(p);
+    row.querySelector('.title').onclick = open;
+    row.querySelector('.title').addEventListener('keydown', e=>{ if(e.key==='Enter') open(); });
+  }
+}
+
+/* ==== Modal đọc bài (gõ tiêu đề + HTML nội dung) ==== */
+async function openModal(p){
+  $('#mTitle').textContent = '';
+  $('#mMeta').textContent  = fmt(p.published);
+  const content = $('#mContent'); content.innerHTML='';
+
+  $('#modal').classList.add('open'); $('#modal').setAttribute('aria-hidden','false');
+
+  await typewriterText($('#mTitle'), p.title, 8);
+  await typewriterHTML(content, p.html, 6);
+}
+function closeModal(){
+  $('#modal').classList.remove('open');
+  $('#modal').setAttribute('aria-hidden','true');
+}
+$('#close').onclick = closeModal;
+$('#modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#modal').classList.contains('open')) closeModal(); });
+
+/* ==== Boot ==== */
+(async ()=>{
+  try{
+    const raw = await fetchAllJSONP(BLOG_BASE, WANT_MAX);
+    const posts = raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
+    document.getElementById('loading').remove();
+    await renderList(posts);
+  }catch(err){
+    document.getElementById('loading').textContent = 'Lỗi tải (JSONP): ' + err.message;
+  }
+})();
+</script>
 </body>
 </html>
