@@ -5,86 +5,241 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nofi.vn</title>
 
-<!-- Font đẹp, hỗ trợ tiếng Việt -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Merriweather:wght@900&display=swap" rel="stylesheet">
 
 <style>
+/* ===== TOKENS (base) ===== */
 :root{
-  --bg:#f6f1ea; --fg:#171717; --muted:#6b7280; --border:#e6ded0; --panel:#ffffff; --accent:#0ea5e9;
-  --shadow:0 10px 26px rgba(0,0,0,.06);
+  --fg:#eae9e5; --muted:#a8b0ba; --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.14);
+  --accent:#7dd3fc; --accent2:#a78bfa; --shadow:0 26px 80px rgba(0,0,0,.5);
+  --bg1:#1a2440; --bg2:#0b0f14; --bg3:#07090c;
+  --tileMin: 240px;
+  --link:#8ddcff; --placeholder:rgba(234,233,229,.55);
 }
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#111315; --panel:#171a1d; --fg:#e7e3db; --muted:#a7a29a; --border:#2a2e33; --accent:#5eead4; --shadow:0 12px 30px rgba(0,0,0,.4) }
+
+/* ===== THEMES ===== */
+:root[data-theme="glass"]{
+  --fg:#eae9e5; --muted:#a8b0ba; --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.14);
+  --accent:#7dd3fc; --accent2:#a78bfa; --shadow:0 26px 80px rgba(0,0,0,.5);
+  --bg1:#1a2440; --bg2:#0b0f14; --bg3:#07090c;
+  --link:#8ddcff; --placeholder:rgba(234,233,229,.55);
 }
+:root[data-theme="sepia"]{
+  --fg:#2a2016; --muted:#6a5741;
+  --panel:rgba(255,255,255,.92); --border:#e2d5bf;
+  --accent:#d97706; --accent2:#a16207; --shadow:0 18px 50px rgba(0,0,0,.16);
+  --bg1:#f7efdf; --bg2:#f1e6d2; --bg3:#eadcc4;
+  --link:#b45309; --placeholder:rgba(42,32,22,.45);
+}
+:root[data-theme="neon"]{
+  --fg:#eceaff; --muted:#bfbaff; --panel:rgba(93,0,255,.22); --border:rgba(197,171,255,.35);
+  --accent:#22d3ee; --accent2:#a855f7; --shadow:0 26px 80px rgba(0,0,0,.55);
+  --bg1:#12022b; --bg2:#0b0122; --bg3:#07001a;
+  --link:#67e8f9; --placeholder:rgba(236,234,255,.55);
+}
+
+/* ===== BASE ===== */
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  margin:0; background:var(--bg); color:var(--fg);
+html,body{
+  margin:0; padding:0; width:100%; min-height:100%;
+  background:radial-gradient(1200px 1200px at 10% -10%, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
+  background-size:cover; background-attachment:fixed; background-repeat:no-repeat;
+  color:var(--fg); font:15.5px/1.65 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-  font:15.5px/1.6 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* Header – gọn, chỉ 1 kẻ */
-.mast{max-width:980px;margin:28px auto 12px;padding:0 18px;border-bottom:1px solid var(--border)}
-.brand{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.brand h1{margin:0;font:900 38px/1 "Merriweather", serif;letter-spacing:.02em}
-.brand .date{font:500 13px/1.2 "Inter";color:var(--muted)}
-.rule{display:none} /* Ẩn kẻ đôi cũ */
+/* blobs (ẩn ở sepia) */
+.blob{position:fixed; inset:auto auto -22% -12%; width:60vmax; height:60vmax;
+  background:radial-gradient(circle at 30% 30%, rgba(125,211,252,.25), transparent 60%);
+  filter:blur(40px); pointer-events:none; animation:float 18s ease-in-out infinite alternate; z-index:0}
+.blob.b2{inset:-18% -12% auto auto; width:55vmax; height:55vmax;
+  background:radial-gradient(circle at 70% 40%, rgba(167,139,250,.22), transparent 60%); animation-duration:22s}
+@keyframes float{to{transform:translate(2%, -3%) scale(1.05)}}
+:root[data-theme="sepia"] .blob,
+:root[data-theme="sepia"] .blob.b2{ display:none }
 
-/* List */
-.wrap{max-width:980px;margin:0 auto 48px;padding:0 18px}
-.list{display:grid;gap:10px}
-.item{
-  background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);
-  padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+/* header */
+.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px; display:flex; align-items:center; justify-content:space-between; z-index:2; position:relative}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:50%;
+  background: radial-gradient(120% 120% at 30% 20%, rgba(125,211,252,.22), rgba(167,139,250,.18) 60%, rgba(255,255,255,.06) 80%),
+              conic-gradient(from 210deg, rgba(125,211,252,.35), rgba(167,139,250,.35), rgba(125,211,252,.35));
+  border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 14px 36px rgba(0,0,0,.5), inset 0 8px 18px rgba(255,255,255,.08);
 }
-.title{
-  font-weight:800; cursor:pointer; text-decoration:underline; text-decoration-color:rgba(14,165,233,.35); text-underline-offset:3px;
+:root[data-theme="sepia"] .logo{
+  background: linear-gradient(180deg,#f4e6cf,#ead9bb);
+  border:1px solid #e6d8c1; box-shadow:0 8px 18px rgba(0,0,0,.08) inset, 0 10px 24px rgba(0,0,0,.08);
 }
-.time{font:600 12px/1.2 "Inter"; color:var(--muted); white-space:nowrap}
+.title{margin:0;font:900 20px "Merriweather", serif}
+.now{font:700 12px/1 "Inter"; color:var(--muted)}
 
-/* Khu nội dung mở rộng (accordion) */
-.entry{background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:0 16px 12px}
-.entry .entry-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
-.entry .entry-title{font-weight:800; cursor:pointer; text-decoration:underline; text-decoration-color:rgba(14,165,233,.35); text-underline-offset:3px}
-.entry .entry-time{font:600 12px/1.2 "Inter"; color:var(--muted); white-space:nowrap}
-.entry .entry-body{display:none; border-top:1px dashed var(--border); padding-top:12px}
-.entry.open .entry-body{display:block}
-.entry .content{font-size:16.5px}
+/* toolbar */
+.toolbar{max-width:1200px;margin:0 auto 10px;padding:0 18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.input, .theme{
+  display:flex; gap:8px; align-items:center;
+  border:1px solid var(--border); background:var(--panel); padding:8px 10px; border-radius:12px; backdrop-filter: blur(8px);
+}
+.input{ flex:1; min-width:260px }
+.input input{
+  width:100%; border:0; outline:0; background:transparent; color:var(--fg); font:600 14px "Inter";
+}
+.input input::placeholder{ color:var(--placeholder) }
+.theme select{
+  border:0; outline:0; background:transparent; color:var(--fg); font:700 13px "Inter";
+}
 
-/* Loading */
-.center{display:flex;justify-content:center;margin:20px 0;color:var(--muted);font-weight:600}
+/* grid */
+.gridWrap{max-width:1200px;margin:0 auto 60px;padding:0 18px; position:relative; z-index:1}
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(var(--tileMin), 1fr)); gap:14px }
+
+/* tile */
+.tile{
+  position:relative; padding:16px 14px; min-height:120px; display:flex; align-items:flex-start; gap:12px;
+  background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);
+  backdrop-filter: blur(8px); cursor:pointer; user-select:none;
+  transition:transform .2s ease, box-shadow .25s ease, background .25s ease;
+}
+.tile:hover{ transform:translateY(-2px); box-shadow:0 26px 80px rgba(0,0,0,.55); background:rgba(255,255,255,.08) }
+:root[data-theme="sepia"] .tile{ background:var(--panel); border-color:#decfb8 }
+:root[data-theme="sepia"] .tile:hover{ background:#ffffff; border-color:#d7c6aa; box-shadow:0 16px 40px rgba(0,0,0,.12) }
+
+.dot{ width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 30% 30%, var(--accent), var(--accent2));
+  box-shadow:0 0 0 2px rgba(255,255,255,.12) inset; margin-top:4px; flex:0 0 auto; }
+.tTitle{font:800 16px/1.45 "Inter"; color:var(--fg)}
+.tMeta{font:700 11px/1 "Inter"; color:var(--muted); margin-top:8px}
+
+/* overlay + reader */
+.overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  opacity:0; visibility:hidden; transition:opacity .35s ease, visibility .35s ease; z-index:3;
+}
+.overlay.open{ opacity:1; visibility:visible }
+.reader{
+  position:fixed; left:50%; top:50%;
+  transform: translate(-50%,-50%) scale(.2);
+  transform-origin: var(--ox,50%) var(--oy,50%);
+  width:min(1080px, 94vw); max-height:84vh;
+  background:rgba(18,22,27,.92); border:1px solid var(--border);
+  box-shadow:0 40px 120px rgba(0,0,0,.6); backdrop-filter: blur(14px);
+  border-radius:18px; z-index:4; opacity:0; pointer-events:none;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
+}
+.reader.open{ opacity:1; transform: translate(-50%,-50%) scale(1); pointer-events:auto; }
+.reader .shell{max-width:100%; padding:16px 18px 20px}
+.reader .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.reader h2{margin:0;font:800 clamp(18px,2.2vmin,26px) "Inter"}
+.reader .meta{font:700 12px "Inter"; color:var(--muted)}
+.reader .close{border:1px solid var(--border); background:var(--panel); color:var(--fg);
+  padding:7px 12px; border-radius:10px; cursor:pointer; font:700 12px "Inter"}
+.reader .body{margin-top:10px; font-size:16.5px; max-height:64vh; overflow:auto}
+
+/* ===== Sepia Paper: panel & nội dung đọc rõ ràng ===== */
+:root[data-theme="sepia"] .reader{
+  background:#fffdf7; border-color:#e6d8c1; box-shadow:0 30px 90px rgba(0,0,0,.12);
+  color:#2a2016;
+}
+:root[data-theme="sepia"] .reader h1,
+:root[data-theme="sepia"] .reader h2,
+:root[data-theme="sepia"] .reader h3,
+:root[data-theme="sepia"] .reader h4{ color:#1a1209 !important }
+:root[data-theme="sepia"] .reader .meta{ color:#6a5741 }
+:root[data-theme="sepia"] .reader .close{ background:#fff; border-color:#e6d8c1; color:#2a2016 }
+
+/* Ép lại màu chữ & xoá nền tối trong nội dung copy từ theme dark */
+:root[data-theme="sepia"] .reader .body,
+:root[data-theme="sepia"] .reader .body *:not(a):not(code):not(pre){
+  color:#2a2016 !important;
+  background:transparent !important;
+  border-color:#e6d8c1 !important;
+}
+:root[data-theme="sepia"] .reader .body a{ color:#b45309 !important }
+:root[data-theme="sepia"] .reader .body strong,
+:root[data-theme="sepia"] .reader .body b{ color:#1a1209 !important }
+:root[data-theme="sepia"] .reader .body em,
+:root[data-theme="sepia"] .reader .body i{ color:#3b2d1f !important }
+:root[data-theme="sepia"] .reader .body code,
+:root[data-theme="sepia"] .reader .body pre{
+  color:#1f160e !important; background:#fff7ea !important;
+  border:1px solid #eadfcf !important; border-radius:6px; padding:.2em .35em;
+}
+:root[data-theme="sepia"] .reader .body hr{
+  border:0; border-top:1px solid #e6d8c1 !important;
+}
+
+/* responsive */
+@media (max-width:680px){ :root{ --tileMin: 180px; } }
 </style>
 </head>
 <body>
+<div class="blob"></div><div class="blob b2"></div>
+
 <header class="mast">
   <div class="brand">
-    <h1>Nofi.vn</h1>
-    <div class="date" id="now"></div>
+    <h1 class="title">NOFI.VN</h1>
   </div>
-  <div class="rule" aria-hidden="true"></div>
+  <div id="now" class="now"></div>
 </header>
 
-<div class="wrap">
-  <main id="list" class="list" aria-live="polite"></main>
-  <div id="loading" class="center">Đang tải bài…</div>
+<div class="toolbar">
+  <div class="input"><input id="q" type="search" placeholder="Tìm tiêu đề… (gõ để lọc)"></div>
+  <div class="theme">
+    <label for="theme" style="font:700 12px 'Inter';opacity:.75;margin-right:4px">Giao diện:</label>
+    <select id="theme">
+      <option value="glass">Glass Dark</option>
+      <option value="sepia">Sepia Paper</option>
+      <option value="neon">Neon Purple</option>
+    </select>
+  </div>
 </div>
+
+<main class="gridWrap">
+  <div id="loading" class="center">Đang tải bài…</div>
+  <section id="grid" class="grid" aria-live="polite"></section>
+</main>
+
+<!-- Overlay + Reader -->
+<div id="overlay" class="overlay"></div>
+<aside id="reader" class="reader" aria-hidden="true">
+  <div class="shell">
+    <div class="head">
+      <div>
+        <h2 id="rTitle"></h2>
+        <div id="rMeta" class="meta"></div>
+      </div>
+      <button id="rClose" class="close">Đóng</button>
+    </div>
+    <div id="rBody" class="body"></div>
+  </div>
+</aside>
 
 <script>
 /* ==== CONFIG ==== */
 const BLOG_BASE = "https://blognofivn.blogspot.com"; // đổi blog ở đây
-const WANT_MAX  = 50;                                 // số bài tối đa
-const TYPE_CPM  = 520;                                  // 90 ký tự/phút
-const TYPE_DELAY = Math.max(40, Math.round(60000 / TYPE_CPM)); // ms/char (≈ 666ms)
+const WANT_MAX  = 80;
 document.getElementById('now').textContent = new Date().toLocaleString('vi-VN');
 
+/* ==== THEME SWITCHER (persist) ==== */
+const root = document.documentElement;
+const themeSelect = document.getElementById('theme');
+(function initTheme(){
+  const stored = localStorage.getItem('nofi_theme') || 'glass';
+  root.setAttribute('data-theme', stored);
+  themeSelect.value = stored;
+})();
+themeSelect.addEventListener('change', ()=>{
+  root.setAttribute('data-theme', themeSelect.value);
+  localStorage.setItem('nofi_theme', themeSelect.value);
+});
+
 /* ==== Utils ==== */
-const $ = s => document.querySelector(s);
+const $ = (s,el=document)=>el.querySelector(s);
 const fmt = s => s ? new Date(s).toLocaleString('vi-VN') : '';
 
-/* ==== JSONP helper (không CORS) ==== */
+/* ==== JSONP ==== */
 function jsonp(url){
   return new Promise((resolve,reject)=>{
     const cb = "cb_" + Math.random().toString(36).slice(2);
@@ -113,100 +268,80 @@ async function fetchAllJSONP(base=BLOG_BASE, wanted=WANT_MAX){
   return out.slice(0,wanted);
 }
 
-/* ==== Chuẩn hoá: GIỮ nguyên HTML của Blogger ==== */
+/* ==== Sanitize + Normalize (safe regex) ==== */
+const SCRIPT_RE = new RegExp('<script[\\s\\S]*?<' + '\\/script>', 'gi');
+const STYLE_RE  = new RegExp('<style[\\s\\S]*?<'  + '\\/style>' , 'gi');
 function sanitizeHTML(html=''){
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi,'')
-    .replace(/<style[\s\S]*?<\/style>/gi,'');
+  return (html || '').replace(SCRIPT_RE,'').replace(STYLE_RE,'');
 }
 function normalize(e){
   const title=(e.title&&e.title.$t)||'(Không tiêu đề)';
   const html =(e.content&&e.content.$t)||(e.summary&&e.summary.$t)||'';
-  return {
-    title,
-    published:e.published?e.published.$t:'',
-    html:sanitizeHTML(html)
-  };
+  return { title, published:e.published?e.published.$t:'', html:sanitizeHTML(html) };
 }
 
-/* ==== Typewriter theo GRAPHEME (không vỡ dấu) – chỉ dùng cho TIÊU ĐỀ ==== */
-function splitGraphemes(str){
-  if (window.Intl && Intl.Segmenter){
-    const seg = new Intl.Segmenter('vi',{granularity:'grapheme'});
-    return Array.from(seg.segment(str), s=>s.segment);
-  }
-  return Array.from(str); // fallback
-}
-function typewriterText(el, text, delay=TYPE_DELAY){
-  return new Promise(resolve=>{
-    const units = splitGraphemes(text || '');
-    let i=0; el.textContent='';
-    (function tick(){
-      if(i<=units.length){
-        el.textContent = units.slice(0,i).join('');
-        i++; setTimeout(tick, delay);
-      } else resolve();
-    })();
+/* ==== Build grid of tiles ==== */
+let POSTS = [];
+function renderGrid(list){
+  const grid = $('#grid'); grid.innerHTML='';
+  list.forEach(p=>{
+    const tile = document.createElement('article');
+    tile.className = 'tile';
+    tile.innerHTML = `
+      <div class="dot" aria-hidden="true"></div>
+      <div style="min-width:0">
+        <div class="tTitle">${p.title}</div>
+        <div class="tMeta">${fmt(p.published)}</div>
+      </div>
+    `;
+    tile.addEventListener('click', ()=> openReaderFromTile(tile, p));
+    grid.appendChild(tile);
   });
 }
 
-/* ==== Accordion: chỉ mở 1 bài, không gõ nội dung ==== */
-let openedEntry = null;
+/* ==== Search filter ==== */
+document.getElementById('q').addEventListener('input', e=>{
+  const kw = e.target.value.trim().toLowerCase();
+  const filtered = kw ? POSTS.filter(p=>p.title.toLowerCase().includes(kw)) : POSTS;
+  renderGrid(filtered);
+});
 
-function renderAccordionItem(p){
-  const wrap = document.createElement('article');
-  wrap.className = 'entry';
+/* ==== Reader morph (tile -> panel) ==== */
+function openReaderFromTile(tile, p){
+  const reader  = $('#reader');
+  const overlay = $('#overlay');
+  $('#rTitle').textContent = p.title;
+  $('#rMeta').textContent  = fmt(p.published);
+  $('#rBody').innerHTML    = p.html;
 
-  wrap.innerHTML = `
-    <div class="entry-head">
-      <div class="entry-title" role="button" tabindex="0"></div>
-      <div class="entry-time">${fmt(p.published)}</div>
-    </div>
-    <div class="entry-body">
-      <div class="content"></div>
-    </div>
-  `;
+  const r = tile.getBoundingClientRect();
+  const ox = (r.left + r.width/2) / innerWidth * 100;
+  const oy = (r.top  + r.height/2) / innerHeight * 100;
+  reader.style.setProperty('--ox', ox+'%');
+  reader.style.setProperty('--oy', oy+'%');
 
-  const titleEl = wrap.querySelector('.entry-title');
-  const bodyEl  = wrap.querySelector('.entry-body');
-  const contentEl = wrap.querySelector('.content');
+  overlay.classList.add('open');
+  reader.classList.add('open');
+  reader.setAttribute('aria-hidden','false');
 
-  // gõ tiêu đề chậm theo 90 cpm
-  typewriterText(titleEl, p.title);
-
-  // set nội dung sẵn (GIỮ HTML blogger), nhưng ẩn cho tới khi mở
-  contentEl.innerHTML = p.html;
-
-  const open = ()=>{
-    if(openedEntry && openedEntry!==wrap){
-      openedEntry.classList.remove('open');
-    }
-    wrap.classList.toggle('open');
-    openedEntry = wrap.classList.contains('open') ? wrap : null;
+  const close = ()=>{
+    overlay.classList.remove('open');
+    reader.classList.remove('open');
+    reader.setAttribute('aria-hidden','true');
+    overlay.removeEventListener('click', close);
+    document.getElementById('rClose').removeEventListener('click', close);
   };
-
-  titleEl.onclick = open;
-  titleEl.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); open(); } });
-
-  return wrap;
-}
-
-async function renderListAccordion(items){
-  const list = $('#list'); list.innerHTML='';
-  if(!items.length){ list.innerHTML='<div class="center">Chưa có bài công khai.</div>'; return; }
-  for(const p of items){
-    const node = renderAccordionItem(p);
-    list.appendChild(node);
-  }
+  overlay.addEventListener('click', close, {once:true});
+  document.getElementById('rClose').addEventListener('click', close, {once:true});
 }
 
 /* ==== Boot ==== */
 (async ()=>{
   try{
     const raw = await fetchAllJSONP(BLOG_BASE, WANT_MAX);
-    const posts = raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
-    document.getElementById('loading').remove();
-    await renderListAccordion(posts);
+    POSTS = raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
+    document.getElementById('loading')?.remove();
+    renderGrid(POSTS);
   }catch(err){
     document.getElementById('loading').textContent = 'Lỗi tải (JSONP): ' + err.message;
   }
