@@ -142,7 +142,7 @@ function openReaderFromTile(tile,p){
   const ox=(r.left+r.width/2)/innerWidth*100;
   reader.style.setProperty('--ox',ox+'%');
   const tb=document.querySelector('.toolbar').getBoundingClientRect();
-  const topPx=Math.round(tb.bottom+20);
+  const topPx=Math.round(tb.bottom+45);
   reader.style.setProperty('--top',topPx+'px');
   overlay.classList.add('open');reader.classList.add('open');reader.setAttribute('aria-hidden','false');
   const close=()=>{overlay.classList.remove('open');reader.classList.remove('open');reader.setAttribute('aria-hidden','true');overlay.removeEventListener('click',close);};
