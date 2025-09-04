@@ -10,36 +10,42 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Merriweather:wght@900&display=swap" rel="stylesheet">
 
 <style>
+:root{ --footerH:52px; }
+
+/* ===== BASE ===== */
 html,body{
   margin:0;padding:0;width:100%;min-height:100%;
   background:radial-gradient(1200px 1200px at 10% -10%, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
   color:var(--fg);
   font:15.5px/1.65 "Inter",system-ui,sans-serif;
-  -webkit-text-size-adjust:none;
-  text-size-adjust:none;
+  -webkit-text-size-adjust:none; text-size-adjust:none;
 }
+body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 
 /* ===== THEMES ===== */
-:root[data-theme="glass"] {
+:root[data-theme="glass"]{
   --fg:#eae9e5; --muted:#a8b0ba;
   --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.14);
   --accent:#7dd3fc; --accent2:#a78bfa;
   --bg1:#1a2440; --bg2:#0b0f14; --bg3:#07090c;
   --link:#8ddcff; --placeholder:rgba(234,233,229,.55);
+  --readerBg:rgba(18,22,27,.92);  /* 💡 modal đậm cho glass */
 }
-:root[data-theme="sepia"] {
+:root[data-theme="sepia"]{
   --fg:#2a2016; --muted:#6a5741;
   --panel:#fffdf7; --border:#e2d5bf;
   --accent:#d97706; --accent2:#a16207;
   --bg1:#f7efdf; --bg2:#f1e6d2; --bg3:#eadcc4;
   --link:#b45309; --placeholder:rgba(42,32,22,.45);
+  --readerBg:#fffdf7;            /* giữ như giấy */
 }
-:root[data-theme="neon"] {
+:root[data-theme="neon"]{
   --fg:#eceaff; --muted:#bfbaff;
   --panel:rgba(93,0,255,.22); --border:rgba(197,171,255,.35);
   --accent:#22d3ee; --accent2:#a855f7;
   --bg1:#12022b; --bg2:#0b0122; --bg3:#07001a;
   --link:#67e8f9; --placeholder:rgba(236,234,255,.55);
+  --readerBg:rgba(18,22,27,.92);  /* 💡 modal đậm cho neon */
 }
 
 /* blobs */
@@ -51,12 +57,12 @@ html,body{
 @keyframes float{to{transform:translate(2%,-3%) scale(1.05)}}
 
 /* header */
-.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
 .title{margin:0;font:900 24px "Merriweather",serif}
 .now{font:700 12px/1 "Inter";color:var(--muted)}
 
 /* toolbar */
-.toolbar{max-width:1200px;margin:0 auto 10px;padding:0 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar{max-width:1200px;margin:0 auto 10px;padding:0 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:relative;z-index:1}
 .input,.theme{display:flex;gap:8px;align-items:center;border:1px solid var(--border);background:var(--panel);padding:8px 10px;border-radius:12px}
 .input{flex:1;min-width:260px}
 .input input{width:100%;border:0;outline:0;background:transparent;color:var(--fg);font:600 14px "Inter"}
@@ -64,7 +70,7 @@ html,body{
 .theme select{border:0;outline:0;background:transparent;color:var(--fg);font:700 13px "Inter"}
 
 /* grid */
-.gridWrap{max-width:1200px;margin:0 auto 60px;padding:0 18px}
+.gridWrap{max-width:1200px;margin:0 auto calc(60px + var(--footerH));padding:0 18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;cursor:pointer;transition:all .25s}
 .tile:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
@@ -73,40 +79,49 @@ html,body{
 .tMeta{font:700 11px/1 "Inter";color:var(--muted);margin-top:8px}
 
 /* overlay */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;z-index:3;transition:opacity .3s}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;z-index:3;transition:opacity .25s}
 .overlay.open{opacity:1;visibility:visible}
 
-/* reader modal */
+/* reader modal (desktop/default) */
 .reader{
-  position:absolute;left:50%;top:140px;
-  transform:translateX(-50%);
+  position:absolute;left:50%;top:140px;transform:translateX(-50%);
   width:min(1080px,94vw);max-height:75vh;
-  background:var(--panel);color:var(--fg);
-  border:1px solid var(--border);
-  border-radius:18px;z-index:4;opacity:0;pointer-events:none;
-  display:flex;flex-direction:column;
-  box-shadow:0 40px 120px rgba(0,0,0,.6);
-  transition:opacity .28s ease;
+  background:var(--readerBg);color:var(--fg);
+  border:1px solid var(--border);border-radius:18px;z-index:4;opacity:0;pointer-events:none;
+  display:flex;flex-direction:column;box-shadow:0 40px 120px rgba(0,0,0,.6);
+  transition:opacity .25s ease;
 }
 .reader.open{opacity:1;pointer-events:auto}
 .reader h2{margin:0;font:800 20px "Inter";padding:14px 16px 4px}
 .reader .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px}
 .reader .body{
-  padding:0 16px 16px;
-  font-size:16px;line-height:1.8;
-  text-align:justify;
+  padding:0 16px calc(16px + var(--footerH)); /* 💡 chừa chỗ cho footer */
+  font-size:16px;line-height:1.8;text-align:justify;
   overflow-y:auto;scrollbar-width:none;
 }
 .reader .body::-webkit-scrollbar{display:none}
-
-/* signature */
 .reader .signature{
   text-align:center;margin:20px 0 6px;color:var(--muted);
-  font:700 13px "Inter";opacity:0;transition:opacity .25s ease;user-select:none;
+  font:700 13px "Inter";opacity:0;transition:opacity .2s ease;user-select:none;
 }
 
-/* footer */
-.foot{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:10px 18px;font:700 12px "Inter";color:var(--muted)}
+/* Mobile: modal dùng fixed để luôn treo theo viewport */
+@media (max-width: 640px){
+  .reader{
+    position:fixed;left:50%;
+    top:var(--topMob, 120px);transform:translateX(-50%);
+    width:94vw;max-height:calc(100vh - var(--topMob) - 8px);
+  }
+}
+
+/* footer (dưới overlay, không nhận click) */
+.foot{
+  position:fixed;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  height:var(--footerH); padding:10px 18px;
+  font:700 12px "Inter";color:var(--muted);
+  z-index:1; pointer-events:none;  /* 💡 không che & không bắt cử chỉ */
+}
 </style>
 </head>
 <body>
@@ -222,7 +237,7 @@ function renderGrid(list){
   });
 }
 
-/* search filter */
+/* search filter (IME-friendly) */
 const qEl=document.getElementById('q');let composing=false,rafId=0;
 function runFilter(){
   cancelAnimationFrame(rafId);
@@ -241,24 +256,30 @@ qEl.addEventListener('search',runFilter,{passive:true});
 /* open reader */
 function openReaderFromTile(tile,p){
   const reader=$('#reader'),overlay=$('#overlay'),body=$('#rBody');
+  // set content
   $('#rTitle').textContent=p.title;
   $('#rMeta').textContent=fmt(p.published);
   body.innerHTML=p.html;
-
-  // thêm chữ ký
+  // signature cuối bài
   const sig=document.createElement('div');
   sig.className='signature';
   sig.textContent='─── ❖ ───';
   body.appendChild(sig);
 
-  // vị trí dưới toolbar
+  // vị trí dưới toolbar (desktop) & top mobile
   const tb=document.querySelector('.toolbar').getBoundingClientRect();
   reader.style.top=Math.round(tb.bottom+45)+'px';
+  // mobile top var
+  const topMob=Math.max(96, Math.round(tb.bottom+24));
+  reader.style.setProperty('--topMob', topMob+'px');
 
+  // mở layer + khoá nền
   overlay.classList.add('open');
   reader.classList.add('open');
   reader.setAttribute('aria-hidden','false');
+  document.body.classList.add('modal-open');
 
+  // show/hide signature theo scroll
   function onScroll(){
     const nearBottom=body.scrollTop+body.clientHeight>=body.scrollHeight-5;
     sig.style.opacity=nearBottom?1:0;
@@ -266,10 +287,12 @@ function openReaderFromTile(tile,p){
   body.addEventListener('scroll',onScroll);
   onScroll();
 
+  // đóng
   const close=()=>{
     overlay.classList.remove('open');
     reader.classList.remove('open');
     reader.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
     overlay.removeEventListener('click',close);
     body.removeEventListener('scroll',onScroll);
   };
