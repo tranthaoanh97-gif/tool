@@ -95,13 +95,17 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 .reader h2{margin:0;font:800 20px "Inter";padding:14px 16px 4px}
 .reader .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px}
 .reader .body{
-  padding:0 16px calc(16px + var(--footerH)); /* 💡 chừa chỗ cho footer */
+  /* 🔧 BỎ khoảng chừa chân gây hở đáy: */
+  padding:0 16px 16px;
   font-size:16px;line-height:1.8;text-align:justify;
   overflow-y:auto;scrollbar-width:none;
 }
 .reader .body::-webkit-scrollbar{display:none}
 .reader .signature{
-  text-align:center;margin:20px 0 6px;color:var(--muted);
+  text-align:center;
+  /* 🔧 Không chừa thêm đáy nữa: */
+  margin:20px 0 0;
+  color:var(--muted);
   font:700 13px "Inter";opacity:0;transition:opacity .2s ease;user-select:none;
 }
 
@@ -201,8 +205,7 @@ async function fetchAllJSONP(base=BLOG_BASE,wanted=WANT_MAX){
   const out=[];
   for(let i=0;i<10&&out.length<wanted&&url;i++){
     const d=await jsonp(url);
-    const entries=(d.feed&&d.feed.entry)||[];
-    out.push(...entries);
+    const entries=(d.feed&&d.feed.entry)||[]; out.push(...entries);
     const next=(d.feed&&d.feed.link||[]).find(l=>l.rel==='next');
     if(next&&next.href){
       url=next.href.replace('alt=json','alt=json-in-script');
