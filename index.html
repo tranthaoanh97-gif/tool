@@ -10,108 +10,70 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Merriweather:wght@900&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --fg:#eae9e5; --muted:#a8b0ba; --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.14);
-  --accent:#7dd3fc; --accent2:#a78bfa; --shadow:0 26px 80px rgba(0,0,0,.5);
-  --bg1:#1a2440; --bg2:#0b0f14; --bg3:#07090c;
-  --tileMin:240px; --link:#8ddcff; --placeholder:rgba(234,233,229,.55);
+html,body{
+  margin:0;padding:0;width:100%;min-height:100%;
+  background:radial-gradient(1200px 1200px at 10% -10%,#1a2440 0%,#0b0f14 40%,#07090c 100%);
+  color:#eae9e5;
+  font:15.5px/1.65 "Inter",system-ui,sans-serif;
+  -webkit-text-size-adjust:none; /* fix nổ chữ mobile */
+  text-size-adjust:none;
 }
 
-/* Themes */
-:root[data-theme="glass"]{
-  --fg:#eae9e5;--muted:#a8b0ba;--panel:rgba(255,255,255,.06);
-  --border:rgba(255,255,255,.14);--accent:#7dd3fc;--accent2:#a78bfa;
-  --shadow:0 26px 80px rgba(0,0,0,.5);--bg1:#1a2440;--bg2:#0b0f14;--bg3:#07090c;
-  --link:#8ddcff;--placeholder:rgba(234,233,229,.55);
-}
-:root[data-theme="sepia"]{
-  --fg:#2a2016;--muted:#6a5741;--panel:#fffdf7;--border:#e2d5bf;
-  --accent:#d97706;--accent2:#a16207;--shadow:0 18px 50px rgba(0,0,0,.16);
-  --bg1:#f7efdf;--bg2:#f1e6d2;--bg3:#eadcc4;--link:#b45309;--placeholder:rgba(42,32,22,.45);
-}
-:root[data-theme="neon"]{
-  --fg:#eceaff;--muted:#bfbaff;--panel:rgba(93,0,255,.22);--border:rgba(197,171,255,.35);
-  --accent:#22d3ee;--accent2:#a855f7;--shadow:0 26px 80px rgba(0,0,0,.55);
-  --bg1:#12022b;--bg2:#0b0122;--bg3:#07001a;--link:#67e8f9;--placeholder:rgba(236,234,255,.55);
-}
-
-/* Base */
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;width:100%;min-height:100%;
-  color:var(--fg);font:15.5px/1.65 "Inter",system-ui,sans-serif;
-}
-/* Nền mặc định (Sepia, Neon) */
-body{
-  background:radial-gradient(1200px 1200px at 10% -10%,var(--bg1) 0%,var(--bg2) 40%,var(--bg3) 100%);
-  background-size:cover;background-attachment:fixed;background-repeat:no-repeat;
-}
-/* Glass Dark fix loang đều */
-:root[data-theme="glass"] body{
-  background:radial-gradient(circle at center top, var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%);
-  background-size:cover;background-attachment:fixed;background-repeat:no-repeat;
-}
-
-/* Floating blobs */
+/* blobs */
 .blob{position:fixed;inset:auto auto -22% -12%;width:60vmax;height:60vmax;
   background:radial-gradient(circle at 30% 30%,rgba(125,211,252,.25),transparent 60%);
   filter:blur(40px);pointer-events:none;animation:float 18s ease-in-out infinite alternate;z-index:0}
 .blob.b2{inset:-18% -12% auto auto;width:55vmax;height:55vmax;
   background:radial-gradient(circle at 70% 40%,rgba(167,139,250,.22),transparent 60%);animation-duration:22s}
 @keyframes float{to{transform:translate(2%,-3%) scale(1.05)}}
-:root[data-theme="sepia"] .blob,:root[data-theme="sepia"] .blob.b2{display:none}
 
-/* Header */
-.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;z-index:2;position:relative}
+/* header */
+.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
 .title{margin:0;font:900 24px "Merriweather",serif}
-.now{font:700 12px/1 "Inter";color:var(--muted)}
+.now{font:700 12px/1 "Inter";color:#a8b0ba}
 
-/* Toolbar */
-.toolbar{max-width:1200px;margin:0 auto 10px;padding:0 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.input,.theme{display:flex;gap:8px;align-items:center;border:1px solid var(--border);background:var(--panel);padding:8px 10px;border-radius:12px;backdrop-filter:blur(8px);}
+/* toolbar */
+.toolbar{max-width:1200px;margin:0 auto 10px;padding:0 18px;display:flex;gap:10px;align-items:center}
+.input,.theme{display:flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:8px 10px;border-radius:12px}
 .input{flex:1;min-width:260px}
-.input input{width:100%;border:0;outline:0;background:transparent;color:var(--fg);font:600 14px "Inter";}
-.input input::placeholder{color:var(--placeholder)}
-.theme select{border:0;outline:0;background:transparent;color:var(--fg);font:700 13px "Inter"}
+.input input{width:100%;border:0;outline:0;background:transparent;color:#eae9e5;font:600 14px "Inter"}
+.input input::placeholder{color:rgba(234,233,229,.55)}
+.theme select{border:0;outline:0;background:transparent;color:#eae9e5;font:700 13px "Inter"}
 
-/* Reader modal (layer) */
-.reader{
-  position:fixed;left:50%;top:var(--top,140px);
-  transform:translateX(-50%) scale(.2);
-  transform-origin:var(--ox,50%) var(--oy,0%);
-  width:min(1080px,94vw);background:var(--panel);color:var(--fg);
-  border:1px solid var(--border);box-shadow:0 40px 120px rgba(0,0,0,.6);
-  backdrop-filter:blur(14px);border-radius:18px;z-index:4;opacity:0;pointer-events:none;
-  max-height:84vh;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .35s ease;
-  display:flex;flex-direction:column;
-}
-.reader.open{opacity:1;transform:translateX(-50%) scale(1);pointer-events:auto;}
-.reader h2{margin:0;font:800 clamp(18px,2.2vmin,26px) "Inter";padding:14px 16px 4px;}
-.reader .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px;}
-.reader .body{padding:0 16px 16px;font-size:16.5px;overflow:auto;scrollbar-width:none;text-align: justify;}
-.reader .body::-webkit-scrollbar{display:none}
+/* grid */
+.gridWrap{max-width:1200px;margin:0 auto 60px;padding:0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:16px;cursor:pointer;transition:all .25s}
+.tile:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+.dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#7dd3fc,#a78bfa);margin-top:4px}
+.tTitle{font:800 16px/1.45 "Inter";color:#eae9e5}
+.tMeta{font:700 11px/1 "Inter";color:#a8b0ba;margin-top:8px}
 
-/* Sepia đọc rõ */
-:root[data-theme="sepia"] .reader{background:#fffdf7;color:#2a2016;}
-:root[data-theme="sepia"] .reader h2,
-:root[data-theme="sepia"] .reader .body,
-:root[data-theme="sepia"] .reader .body *{color:#2a2016 !important;background:transparent !important;}
-
-/* Grid */
-.gridWrap{max-width:1200px;margin:0 auto 60px;padding:0 18px;position:relative;z-index:1}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tileMin),1fr));gap:14px}
-.tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s ease,box-shadow .25s ease,background .25s ease;}
-.tile:hover{transform:translateY(-2px);box-shadow:0 26px 80px rgba(0,0,0,.55);background:rgba(255,255,255,.08)}
-.dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--accent),var(--accent2));margin-top:4px;flex:0 0 auto;}
-.tTitle{font:800 16px/1.45 "Inter";color:var(--fg)}
-.tMeta{font:700 11px/1 "Inter";color:var(--muted);margin-top:8px}
-
-/* Overlay click ngoài */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;z-index:3;transition:opacity .35s ease;}
+/* overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;z-index:3;transition:opacity .35s}
 .overlay.open{opacity:1;visibility:visible}
 
-/* Footer */
-body{padding-bottom:58px;}
-.foot{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:10px 18px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.20) 100%);backdrop-filter:blur(4px);font:700 12px/1 "Inter";color:var(--muted);z-index:2}
+/* reader modal */
+.reader{
+  position:absolute;left:50%;top:140px;
+  transform:translateX(-50%);
+  width:min(1080px,94vw);max-height:75vh;
+  background:rgba(18,22,27,.92);color:#eae9e5;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;z-index:4;opacity:0;pointer-events:none;
+  display:flex;flex-direction:column;
+  box-shadow:0 40px 120px rgba(0,0,0,.6);
+  transition:opacity .3s,transform .3s;
+}
+.reader.open{opacity:1;pointer-events:auto}
+.reader h2{margin:0;font:800 20px "Inter";padding:14px 16px 4px}
+.reader .meta{font:700 12px "Inter";color:#a8b0ba;padding:0 16px 10px}
+.reader .body{padding:0 16px 16px;font-size:16px;line-height:1.7;text-align:justify;overflow-y:auto;scrollbar-width:none}
+.reader .body::-webkit-scrollbar{display:none}
+.reader .signature{text-align:center;margin:14px 0 6px;color:#a8b0ba;font:700 13px "Inter"}
+
+/* footer */
+.foot{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:10px 18px;font:700 12px "Inter";color:#a8b0ba}
 </style>
 </head>
 <body>
@@ -135,8 +97,8 @@ body{padding-bottom:58px;}
 </div>
 
 <main class="gridWrap">
-  <div id="loading" class="center">Đang tải bài…</div>
-  <section id="grid" class="grid" aria-live="polite"></section>
+  <div id="loading">Đang tải bài…</div>
+  <section id="grid" class="grid"></section>
 </main>
 
 <div id="overlay" class="overlay"></div>
@@ -145,6 +107,7 @@ body{padding-bottom:58px;}
   <h2 id="rTitle"></h2>
   <div id="rMeta" class="meta"></div>
   <div id="rBody" class="body"></div>
+  <div class="signature">─── ❖ ───</div>
 </aside>
 
 <footer class="foot">Tôi như trẻ nhỏ ngồi bên hiên nhà chờ nghe thế kỷ tàn phai</footer>
@@ -153,101 +116,32 @@ body{padding-bottom:58px;}
 const BLOG_BASE="https://blognofivn.blogspot.com";const WANT_MAX=80;
 document.getElementById('now').textContent=new Date().toLocaleString('vi-VN');
 
-const root=document.documentElement,themeSelect=document.getElementById('theme');
-(function(){const stored=localStorage.getItem('nofi_theme')||'glass';root.setAttribute('data-theme',stored);themeSelect.value=stored;})();
-themeSelect.addEventListener('change',()=>{root.setAttribute('data-theme',themeSelect.value);localStorage.setItem('nofi_theme',themeSelect.value);});
-
 const $=(s,el=document)=>el.querySelector(s);
 const fmt=s=>s?new Date(s).toLocaleString('vi-VN'):'';
 
-/* JSONP */
 function jsonp(url){return new Promise((resolve,reject)=>{const cb="cb_"+Math.random().toString(36).slice(2);const sc=document.createElement('script');sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb;let done=false;window[cb]=(data)=>{done=true;resolve(data);cleanup();};sc.onerror=()=>{if(!done){reject(new Error('JSONP load error'));cleanup();}};function cleanup(){delete window[cb];sc.remove();}document.body.appendChild(sc);});}
 async function fetchAllJSONP(base=BLOG_BASE,wanted=WANT_MAX){let url=base.replace(/\/?$/,'')+'/feeds/posts/default?alt=json-in-script&max-results=100';const out=[];for(let i=0;i<10&&out.length<wanted&&url;i++){const d=await jsonp(url);const entries=(d.feed&&d.feed.entry)||[];out.push(...entries);const next=(d.feed&&d.feed.link||[]).find(l=>l.rel==='next');if(next&&next.href){url=next.href.replace('alt=json','alt=json-in-script');if(!/alt=json-in-script/.test(url))url+=(url.includes('?')?'&':'?')+'alt=json-in-script';}else url=null;}return out.slice(0,wanted);}
 
-/* Sanitize + normalize */
-const SCRIPT_RE=new RegExp('<script[\\s\\S]*?<\\/script>','gi');
-const STYLE_RE =new RegExp('<style[\\s\\S]*?<\\/style>','gi');
+const SCRIPT_RE=/<script[\s\S]*?<\/script>/gi;
+const STYLE_RE=/<style[\s\S]*?<\/style>/gi;
 function sanitizeHTML(html=''){return(html||'').replace(SCRIPT_RE,'').replace(STYLE_RE,'');}
-function normalize(e){
-  const title=(e.title&&e.title.$t)||'(Không tiêu đề)';
-  const html=(e.content&&e.content.$t)||(e.summary&&e.summary.$t)||'';
-  return { title, published:e.published?e.published.$t:'', html:sanitizeHTML(html) };
-}
-
-/* Build grid */
+function normalize(e){const title=(e.title&&e.title.$t)||'(Không tiêu đề)';const html=(e.content&&e.content.$t)||(e.summary&&e.summary.$t)||'';return{title,published:e.published?e.published.$t:'',html:sanitizeHTML(html)};}
 let POSTS=[];
-function renderGrid(list){
-  const grid=$('#grid'); grid.innerHTML='';
-  list.forEach(p=>{
-    const tile=document.createElement('article');
-    tile.className='tile';
-    tile.innerHTML=`
-      <div class="dot"></div>
-      <div style="min-width:0">
-        <div class="tTitle">${p.title}</div>
-        <div class="tMeta">${fmt(p.published)}</div>
-      </div>`;
-    tile.addEventListener('click',()=>openReaderFromTile(tile,p));
-    grid.appendChild(tile);
-  });
-}
 
-/* Search filter */
-document.getElementById('q').addEventListener('input', e=>{
-  const kw=e.target.value.trim().toLowerCase();
-  const filtered=kw?POSTS.filter(p=>p.title.toLowerCase().includes(kw)):POSTS;
-  renderGrid(filtered);
-});
+function renderGrid(list){const grid=$('#grid');grid.innerHTML='';list.forEach(p=>{const tile=document.createElement('article');tile.className='tile';tile.innerHTML=`<div class="dot"></div><div style="min-width:0"><div class="tTitle">${p.title}</div><div class="tMeta">${fmt(p.published)}</div></div>`;tile.addEventListener('click',()=>openReaderFromTile(tile,p));grid.appendChild(tile);});}
 
-/* Open modal (layer) – signature appended to the end of the content */
 function openReaderFromTile(tile,p){
-  const reader=$('#reader');
-  const overlay=$('#overlay');
-
+  const reader=$('#reader'),overlay=$('#overlay');
   $('#rTitle').textContent=p.title;
   $('#rMeta').textContent=fmt(p.published);
   $('#rBody').innerHTML=p.html;
-
-  // Thêm chữ ký vào CUỐI nội dung để không che chữ
-  const signature=document.createElement('div');
-  signature.textContent="─── ❖ ───";
-  signature.style.cssText="text-align:center;margin:20px 0 6px;font:700 14px 'Inter';color:var(--muted);user-select:none;";
-  $('#rBody').appendChild(signature);
-
-  // morph origin từ tile
-  const r=tile.getBoundingClientRect();
-  const ox=(r.left+r.width/2)/innerWidth*100;
-  reader.style.setProperty('--ox',ox+'%');
-
-  // neo modal dưới thanh tìm kiếm
-  const tb=document.querySelector('.toolbar').getBoundingClientRect();
-  const topPx=Math.round(tb.bottom+45); // chỉnh offset tại đây
-  reader.style.setProperty('--top',topPx+'px');
-
-  overlay.classList.add('open');
-  reader.classList.add('open');
+  overlay.classList.add('open');reader.classList.add('open');
   reader.setAttribute('aria-hidden','false');
-
-  const close=()=>{
-    overlay.classList.remove('open');
-    reader.classList.remove('open');
-    reader.setAttribute('aria-hidden','true');
-    overlay.removeEventListener('click',close);
-  };
+  const close=()=>{overlay.classList.remove('open');reader.classList.remove('open');reader.setAttribute('aria-hidden','true');overlay.removeEventListener('click',close);};
   overlay.addEventListener('click',close,{once:true});
 }
 
-/* Boot */
-(async ()=>{
-  try{
-    const raw=await fetchAllJSONP(BLOG_BASE,WANT_MAX);
-    POSTS=raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
-    document.getElementById('loading')?.remove();
-    renderGrid(POSTS);
-  }catch(err){
-    document.getElementById('loading').textContent='Lỗi tải (JSONP): '+err.message;
-  }
-})();
+(async()=>{try{const raw=await fetchAllJSONP(BLOG_BASE,WANT_MAX);POSTS=raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));document.getElementById('loading')?.remove();renderGrid(POSTS);}catch(err){document.getElementById('loading').textContent='Lỗi tải (JSONP): '+err.message;}})();
 </script>
 </body>
 </html>
