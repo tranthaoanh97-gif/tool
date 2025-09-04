@@ -210,6 +210,7 @@ qEl.addEventListener('keyup',()=>{if(!composing) runFilter();},{passive:true});
 qEl.addEventListener('search',runFilter,{passive:true});
 
 /* ===== Modal open ===== */
+/* ===== Modal open ===== */
 function openReaderFromTile(tile,p){
   const reader=$('#reader'), overlay=$('#overlay');
   $('#rTitle').textContent=p.title;
@@ -223,9 +224,26 @@ function openReaderFromTile(tile,p){
   reader.classList.add('open');
   reader.setAttribute('aria-hidden','false');
 
-  const body=$('#rBody'), sig=reader.querySelector('.signature');
-  sig.style.opacity=0;
-  body.onscroll=()=>{ if(body.scrollTop + body.clientHeight >= body.scrollHeight - 5){ sig.style.opacity=1; } };
+  // --- chữ ký: hiện ngay nếu bài NGẮN (không cần cuộn); bài DÀI thì đợi cuộn tới đáy ---
+  const body = $('#rBody');
+  const sig  = reader.querySelector('.signature');
+
+  // reset
+  sig.style.opacity = 0;
+  body.onscroll = null;
+
+  // nếu không overflow (bài ngắn) -> hiện luôn
+  const noScroll = body.scrollHeight <= body.clientHeight + 1;
+  if (noScroll) {
+    sig.style.opacity = 1;
+  } else {
+    // bài dài: hiện khi cuộn tới đáy
+    body.onscroll = () => {
+      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 5) {
+        sig.style.opacity = 1;
+      }
+    };
+  }
 
   const close=()=>{
     overlay.classList.remove('open');
@@ -236,6 +254,7 @@ function openReaderFromTile(tile,p){
   };
   overlay.addEventListener('click', close, {once:true});
 }
+
 
 /* ===== Boot ===== */
 (async()=>{
