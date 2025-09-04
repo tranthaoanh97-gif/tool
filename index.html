@@ -15,7 +15,7 @@ html,body{
   background:radial-gradient(1200px 1200px at 10% -10%,#1a2440 0%,#0b0f14 40%,#07090c 100%);
   color:#eae9e5;
   font:15.5px/1.65 "Inter",system-ui,sans-serif;
-  -webkit-text-size-adjust:none;
+  -webkit-text-size-adjust:none; /* fix nổ chữ mobile */
   text-size-adjust:none;
 }
 
@@ -53,7 +53,7 @@ html,body{
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;z-index:3;transition:opacity .3s}
 .overlay.open{opacity:1;visibility:visible}
 
-/* reader modal */
+/* reader modal — absolute để UC không đơ */
 .reader{
   position:absolute;left:50%;top:140px;
   transform:translateX(-50%);
@@ -71,11 +71,16 @@ html,body{
 .reader .body{
   padding:0 16px 16px;
   font-size:16px;line-height:1.8;
-  text-align:justify;
+  text-align:justify; /* căn đều hai bên */
   overflow-y:auto;scrollbar-width:none;
 }
 .reader .body::-webkit-scrollbar{display:none}
-.reader .signature{text-align:center;margin:14px 0 6px;color:#a8b0ba;font:700 13px "Inter"}
+
+/* chữ ký NẰM TRONG nội dung, mặc định ẩn */
+.reader .signature{
+  text-align:center;margin:20px 0 6px;color:#a8b0ba;
+  font:700 13px "Inter";opacity:0;transition:opacity .25s ease;user-select:none;
+}
 
 /* footer */
 .foot{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:10px 18px;font:700 12px "Inter";color:#a8b0ba}
@@ -118,7 +123,7 @@ html,body{
   <h2 id="rTitle"></h2>
   <div id="rMeta" class="meta"></div>
   <div id="rBody" class="body"></div>
-  <div class="signature">─── ❖ ───</div>
+  <!-- KHÔNG đặt signature cố định ở đây nữa -->
 </aside>
 
 <footer class="foot">Tôi như trẻ nhỏ ngồi bên hiên nhà chờ nghe thế kỷ tàn phai</footer>
@@ -210,51 +215,48 @@ qEl.addEventListener('keyup',()=>{if(!composing) runFilter();},{passive:true});
 qEl.addEventListener('search',runFilter,{passive:true});
 
 /* ===== Modal open ===== */
-/* ===== Modal open ===== */
 function openReaderFromTile(tile,p){
   const reader=$('#reader'), overlay=$('#overlay');
+  const body = $('#rBody');
+
+  // set content
   $('#rTitle').textContent=p.title;
   $('#rMeta').textContent=fmt(p.published);
-  $('#rBody').innerHTML=p.html;
+  body.innerHTML=p.html;
 
+  // thêm chữ ký vào CUỐI nội dung (scroll theo bài)
+  const sig=document.createElement('div');
+  sig.className='signature';
+  sig.textContent='─── ❖ ───';
+  body.appendChild(sig);
+
+  // vị trí modal dưới toolbar
   const tb=document.querySelector('.toolbar').getBoundingClientRect();
   reader.style.top = Math.round(tb.bottom + 45) + 'px';
 
+  // mở layer
   overlay.classList.add('open');
   reader.classList.add('open');
   reader.setAttribute('aria-hidden','false');
 
-  // --- chữ ký: hiện ngay nếu bài NGẮN (không cần cuộn); bài DÀI thì đợi cuộn tới đáy ---
-  const body = $('#rBody');
-  const sig  = reader.querySelector('.signature');
-
-  // reset
-  sig.style.opacity = 0;
-  body.onscroll = null;
-
-  // nếu không overflow (bài ngắn) -> hiện luôn
-  const noScroll = body.scrollHeight <= body.clientHeight + 1;
-  if (noScroll) {
-    sig.style.opacity = 1;
-  } else {
-    // bài dài: hiện khi cuộn tới đáy
-    body.onscroll = () => {
-      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 5) {
-        sig.style.opacity = 1;
-      }
-    };
+  // show/hide chữ ký theo vị trí cuộn
+  function onScroll(){
+    const nearBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 5;
+    sig.style.opacity = nearBottom ? 1 : 0;
   }
+  body.addEventListener('scroll', onScroll);
+  onScroll(); // set trạng thái ban đầu
 
+  // đóng
   const close=()=>{
     overlay.classList.remove('open');
     reader.classList.remove('open');
     reader.setAttribute('aria-hidden','true');
     overlay.removeEventListener('click',close);
-    body.onscroll=null;
+    body.removeEventListener('scroll', onScroll);
   };
   overlay.addEventListener('click', close, {once:true});
 }
-
 
 /* ===== Boot ===== */
 (async()=>{
