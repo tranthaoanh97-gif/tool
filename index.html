@@ -14,16 +14,11 @@
 
 /* ===== BASE ===== */
 html,body{
-  margin:0;padding:0;width:100%;
+  margin:0;padding:0;width:100%;min-height:100%;
   background:radial-gradient(1200px 1200px at 10% -10%, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
   color:var(--fg);
   font:15.5px/1.65 "Inter",system-ui,sans-serif;
   -webkit-text-size-adjust:none; text-size-adjust:none;
-}
-/* 🔧 Dùng flex column để footer ngồi dưới cùng mà không đè nội dung */
-body{
-  min-height:100svh;            /* svh chuẩn cho mobile */
-  display:flex; flex-direction:column;
 }
 
 /* ===== THEMES ===== */
@@ -52,7 +47,7 @@ body{
   --readerBg:rgba(18,22,27,.92);
 }
 
-/* blobs nền (không ảnh hưởng layout) */
+/* blobs nền */
 .blob{position:fixed;inset:auto auto -22% -12%;width:60vmax;height:60vmax;
   background:radial-gradient(circle at 30% 30%,rgba(125,211,252,.25),transparent 60%);
   filter:blur(40px);pointer-events:none;animation:float 18s ease-in-out infinite alternate;z-index:0}
@@ -77,7 +72,11 @@ body{
 .container{max-width:1200px;margin:0 auto;padding:0 18px}
 
 /* grid danh sách */
-.gridWrap{margin:0 auto 24px;}   /* 🔧 bỏ khoảng chừa cho footer vì giờ footer nằm trong flow */
+.gridWrap{
+  margin:0 auto;
+  /* 🔧 chừa đáy = chiều cao footer + safe-area để không bị đè */
+  padding-bottom: calc(var(--footerH) + max(env(safe-area-inset-bottom,0px), 16px));
+}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;cursor:pointer;transition:all .25s}
 .tile:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
@@ -101,18 +100,19 @@ body{
 .article .signature{margin:20px 0 0;text-align:center;color:var(--muted);font:700 13px "Inter"}
 
 /* Ẩn/hiện theo trạng thái */
-#listView, #readView{flex:1;}          /* 🔧 phần nội dung chiếm chỗ đẩy footer xuống đáy */
 body.reading #listView,
 body.reading .foot{ display:none; }
 body.reading #readView{ display:block; }
 
-/* 🔧 Footer giờ là phần tử thường trong flow, không overlay */
+/* 🔧 Footer cố định dưới, KHÔNG đè vì list đã chừa padding-bottom */
 .foot{
-  margin-top:auto;
-  height:var(--footerH); display:flex; align-items:center; justify-content:center;
-  padding:10px 18px;
-  font:700 12px "Inter"; color:var(--muted);
-  /* pointer-events:none;  có hay không đều được vì nó không che nội dung nữa */
+  position:fixed;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  height:var(--footerH); padding:10px 18px;
+  font:700 12px "Inter";color:var(--muted);
+  z-index:2; pointer-events:none;
+  /* Optional: mờ nền nhẹ để tách khỏi nội dung */
+  /* background:linear-gradient(to top, rgba(0,0,0,.05), transparent); */
 }
 </style>
 </head>
