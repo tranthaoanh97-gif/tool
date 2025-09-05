@@ -14,11 +14,16 @@
 
 /* ===== BASE ===== */
 html,body{
-  margin:0;padding:0;width:100%;min-height:100%;
+  margin:0;padding:0;width:100%;
   background:radial-gradient(1200px 1200px at 10% -10%, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
   color:var(--fg);
   font:15.5px/1.65 "Inter",system-ui,sans-serif;
   -webkit-text-size-adjust:none; text-size-adjust:none;
+}
+/* 🔧 Dùng flex column để footer ngồi dưới cùng mà không đè nội dung */
+body{
+  min-height:100svh;            /* svh chuẩn cho mobile */
+  display:flex; flex-direction:column;
 }
 
 /* ===== THEMES ===== */
@@ -47,7 +52,7 @@ html,body{
   --readerBg:rgba(18,22,27,.92);
 }
 
-/* blobs nền */
+/* blobs nền (không ảnh hưởng layout) */
 .blob{position:fixed;inset:auto auto -22% -12%;width:60vmax;height:60vmax;
   background:radial-gradient(circle at 30% 30%,rgba(125,211,252,.25),transparent 60%);
   filter:blur(40px);pointer-events:none;animation:float 18s ease-in-out infinite alternate;z-index:0}
@@ -72,7 +77,7 @@ html,body{
 .container{max-width:1200px;margin:0 auto;padding:0 18px}
 
 /* grid danh sách */
-.gridWrap{margin:0 auto calc(60px + var(--footerH));}
+.gridWrap{margin:0 auto 24px;}   /* 🔧 bỏ khoảng chừa cho footer vì giờ footer nằm trong flow */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;cursor:pointer;transition:all .25s}
 .tile:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
@@ -96,17 +101,18 @@ html,body{
 .article .signature{margin:20px 0 0;text-align:center;color:var(--muted);font:700 13px "Inter"}
 
 /* Ẩn/hiện theo trạng thái */
+#listView, #readView{flex:1;}          /* 🔧 phần nội dung chiếm chỗ đẩy footer xuống đáy */
 body.reading #listView,
 body.reading .foot{ display:none; }
 body.reading #readView{ display:block; }
 
-/* footer chỉ cho trang danh sách */
+/* 🔧 Footer giờ là phần tử thường trong flow, không overlay */
 .foot{
-  position:fixed;left:0;right:0;bottom:0;
-  display:flex;align-items:center;justify-content:center;
-  height:var(--footerH); padding:10px 18px;
-  font:700 12px "Inter";color:var(--muted);
-  z-index:1; pointer-events:none;
+  margin-top:auto;
+  height:var(--footerH); display:flex; align-items:center; justify-content:center;
+  padding:10px 18px;
+  font:700 12px "Inter"; color:var(--muted);
+  /* pointer-events:none;  có hay không đều được vì nó không che nội dung nữa */
 }
 </style>
 </head>
@@ -237,7 +243,6 @@ function runFilter(){
     const kw=norm(qEl.value.trim());
     const filtered=kw?POSTS.filter(p=>norm(p.title).includes(kw)):POSTS;
     renderGrid(filtered);
-
     if(document.body.classList.contains('reading')) goList(false);
   });
 }
@@ -264,18 +269,14 @@ function openArticle(p, pushHistory=false){
   $('#readView').style.display='block';
 
   const slug=slugify(p.title);
-  if(pushHistory){
-    history.pushState({view:'read',slug},'',`#${slug}`);
-  }
+  if(pushHistory){ history.pushState({view:'read',slug},'',`#${slug}`); }
   const toolBottom=document.querySelector('.toolbar').getBoundingClientRect().bottom + window.scrollY;
   window.scrollTo({top:toolBottom+12,behavior:'smooth'});
 }
 
 /* ESC về danh sách */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape' && document.body.classList.contains('reading')){
-    goList();
-  }
+  if(e.key==='Escape' && document.body.classList.contains('reading')) goList();
 });
 
 /* Logo & TIÊU ĐỀ BÀI: click để về danh sách */
