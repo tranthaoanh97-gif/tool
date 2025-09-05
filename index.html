@@ -88,7 +88,8 @@ html,body{
   box-shadow:0 40px 120px rgba(0,0,0,.6);
 }
 .article header{padding:16px 16px 6px}
-.article h2{margin:0;font:800 22px "Inter"}
+.article h2{margin:0;font:800 22px "Inter";cursor:pointer}
+.article h2:hover{opacity:.85;text-decoration:underline}
 .article .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px}
 .article .body{padding:0 16px 18px;font-size:16px;line-height:1.8;text-align:justify}
 .article .body img{max-width:100%;height:auto}
@@ -144,7 +145,7 @@ body.reading #readView{ display:block; }
 <!-- Chế độ ĐỌC BÀI -->
 <section id="readView" class="container readWrap" style="display:none">
   <article class="article" id="article">
-    <header><h2 id="rTitle"></h2></header>
+    <header><h2 id="rTitle" title="Bấm để quay về danh sách"></h2></header>
     <div id="rMeta" class="meta"></div>
     <div id="rBody" class="body"></div>
     <div class="signature">─── ❖ ───</div>
@@ -237,7 +238,6 @@ function runFilter(){
     const filtered=kw?POSTS.filter(p=>norm(p.title).includes(kw)):POSTS;
     renderGrid(filtered);
 
-    // Nếu đang đọc mà gõ tìm kiếm -> quay về danh sách
     if(document.body.classList.contains('reading')) goList(false);
   });
 }
@@ -247,16 +247,15 @@ qEl.addEventListener('input',()=>{if(!composing)runFilter();},{passive:true});
 qEl.addEventListener('keyup',()=>{if(!composing)runFilter();},{passive:true});
 qEl.addEventListener('search',runFilter,{passive:true});
 
-/* về danh sách (doBack: có đẩy state không) */
+/* về danh sách */
 function goList(push=true){
   document.body.classList.remove('reading');
   $('#readView').style.display='none';
   if(push){ history.pushState({view:'list'},'',location.pathname); }
-  // đưa lên đầu danh sách
   window.scrollTo({top:0,behavior:'instant'});
 }
 
-/* mở bài: GIỮ header/toolbar, ẩn list + footer, hỗ trợ history/hash */
+/* mở bài */
 function openArticle(p, pushHistory=false){
   $('#rTitle').textContent=p.title||'(Không tiêu đề)';
   $('#rMeta').textContent=fmt(p.published);
@@ -272,24 +271,25 @@ function openArticle(p, pushHistory=false){
   window.scrollTo({top:toolBottom+12,behavior:'smooth'});
 }
 
-/* ESC để quay về danh sách */
+/* ESC về danh sách */
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && document.body.classList.contains('reading')){
-    goList(); // có pushState
+    goList();
   }
 });
 
-/* Click vào logo/siteTitle để về danh sách */
+/* Logo & TIÊU ĐỀ BÀI: click để về danh sách */
 document.getElementById('siteTitle').addEventListener('click',()=>goList());
+document.getElementById('rTitle').addEventListener('click',()=>goList());
 
-/* Back/Forward của trình duyệt */
+/* Back/Forward */
 window.addEventListener('popstate',()=>{
   if(location.hash){
     const slug=decodeURIComponent(location.hash.slice(1));
     const p=SLUG_INDEX.get(slug);
     if(p){ openArticle(p,false); return; }
   }
-  goList(false); // về list khi không có hash
+  goList(false);
 });
 
 /* boot */
@@ -301,7 +301,6 @@ window.addEventListener('popstate',()=>{
     document.getElementById('loading')?.remove();
     renderGrid(POSTS);
 
-    // Nếu URL có hash -> mở đúng bài
     if(location.hash){
       const p=SLUG_INDEX.get(decodeURIComponent(location.hash.slice(1)));
       if(p) openArticle(p,false);
