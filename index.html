@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Merriweather:wght@900&display=swap" rel="stylesheet">
 
 <style>
-/* ===== THEME TOKENS (3 chủ đề) ===== */
+/* ===== THEME TOKENS ===== */
 :root{
   --fg:#eae9e5; --muted:#a8b0ba;
   --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.14);
@@ -44,7 +44,7 @@ html,body{
   -webkit-text-size-adjust:none; text-size-adjust:none;
 }
 
-/* blobs nền */
+/* blobs */
 .blob{position:fixed;inset:auto auto -22% -12%;width:60vmax;height:60vmax;
   background:radial-gradient(circle at 30% 30%,rgba(125,211,252,.25),transparent 60%);
   filter:blur(40px);pointer-events:none;animation:float 18s ease-in-out infinite alternate;z-index:0}
@@ -52,7 +52,7 @@ html,body{
   background:radial-gradient(circle at 70% 40%,rgba(167,139,250,.22),transparent 60%);animation-duration:22s}
 @keyframes float{to{transform:translate(2%,-3%) scale(1.05)}}
 
-/* ===== HEADER 2 HÀNG ===== */
+/* ===== HEADER (2 hàng) ===== */
 .mast{
   max-width:1200px;
   margin:16px auto 8px;
@@ -61,15 +61,23 @@ html,body{
   gap:4px; position:relative; z-index:1;
 }
 .mast .row{
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex;
+  align-items:baseline;           /* 🔧 cùng bằng chân */
+  justify-content:space-between;
 }
 .title{
-  margin:0; font:900 24px "Merriweather",serif;
+  margin:0;
+  font:900 24px "Merriweather",serif;
+  line-height:1;                  /* giúp baseline ổn định */
   cursor:pointer;
 }
-.now{ font:700 12px/1 "Inter"; color:var(--muted); }
+.now{
+  font:700 clamp(10px, 2vw, 14px) "Inter";  /* 🔧 co giãn như tagline */
+  line-height:1;                              
+  color:var(--muted);
+}
 .tagline{
-  font:700 clamp(10px, 2vw, 14px) "Inter"; /* co giãn theo màn hình */
+  font:700 clamp(10px, 2vw, 14px) "Inter";  /* 🔧 co giãn theo màn hình */
   color:var(--muted);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; /* luôn 1 dòng */
   text-align:left;
