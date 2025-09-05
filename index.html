@@ -10,19 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Merriweather:wght@900&display=swap" rel="stylesheet">
 
 <style>
-:root{ --footerH:52px; }
-
-/* ===== BASE ===== */
-html,body{
-  margin:0;padding:0;width:100%;min-height:100%;
-  background:radial-gradient(1200px 1200px at 10% -10%, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
-  color:var(--fg);
-  font:15.5px/1.65 "Inter",system-ui,sans-serif;
-  -webkit-text-size-adjust:none; text-size-adjust:none;
-}
-
-/* ===== THEMES ===== */
-:root[data-theme="glass"]{
+:root{
   --fg:#eae9e5; --muted:#a8b0ba;
   --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.14);
   --accent:#7dd3fc; --accent2:#a78bfa;
@@ -30,24 +18,15 @@ html,body{
   --link:#8ddcff; --placeholder:rgba(234,233,229,.55);
   --readerBg:rgba(18,22,27,.92);
 }
-:root[data-theme="sepia"]{
-  --fg:#2a2016; --muted:#6a5741;
-  --panel:#fffdf7; --border:#e2d5bf;
-  --accent:#d97706; --accent2:#a16207;
-  --bg1:#f7efdf; --bg2:#f1e6d2; --bg3:#eadcc4;
-  --link:#b45309; --placeholder:rgba(42,32,22,.45);
-  --readerBg:#fffdf7;
-}
-:root[data-theme="neon"]{
-  --fg:#eceaff; --muted:#bfbaff;
-  --panel:rgba(93,0,255,.22); --border:rgba(197,171,255,.35);
-  --accent:#22d3ee; --accent2:#a855f7;
-  --bg1:#12022b; --bg2:#0b0122; --bg3:#07001a;
-  --link:#67e8f9; --placeholder:rgba(236,234,255,.55);
-  --readerBg:rgba(18,22,27,.92);
+
+/* base */
+html,body{
+  margin:0;padding:0;width:100%;min-height:100%;
+  background:radial-gradient(1200px 1200px at 10% -10%, var(--bg1) 0%, var(--bg2) 40%, var(--bg3) 100%);
+  color:var(--fg); font:15.5px/1.65 "Inter",system-ui,sans-serif;
 }
 
-/* blobs nền */
+/* blobs */
 .blob{position:fixed;inset:auto auto -22% -12%;width:60vmax;height:60vmax;
   background:radial-gradient(circle at 30% 30%,rgba(125,211,252,.25),transparent 60%);
   filter:blur(40px);pointer-events:none;animation:float 18s ease-in-out infinite alternate;z-index:0}
@@ -56,9 +35,10 @@ html,body{
 @keyframes float{to{transform:translate(2%,-3%) scale(1.05)}}
 
 /* header */
-.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;position:relative;z-index:1}
 .title{margin:0;font:900 24px "Merriweather",serif;cursor:pointer}
 .now{font:700 12px/1 "Inter";color:var(--muted)}
+.tagline{font:700 12px "Inter";color:var(--muted);margin-top:4px}
 
 /* toolbar */
 .toolbar{max-width:1200px;margin:0 auto 10px;padding:0 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:relative;z-index:1}
@@ -68,15 +48,9 @@ html,body{
 .input input::placeholder{color:var(--placeholder)}
 .theme select{border:0;outline:0;background:transparent;color:var(--fg);font:700 13px "Inter"}
 
-/* khung chung (giữ bề rộng 4 cột) */
+/* grid */
 .container{max-width:1200px;margin:0 auto;padding:0 18px}
-
-/* grid danh sách */
-.gridWrap{
-  margin:0 auto;
-  /* 🔧 chừa đáy = chiều cao footer + safe-area để không bị đè */
-  padding-bottom: calc(var(--footerH) + max(env(safe-area-inset-bottom,0px), 16px));
-}
+.gridWrap{margin:0 auto 24px;}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;cursor:pointer;transition:all .25s}
 .tile:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
@@ -84,36 +58,23 @@ html,body{
 .tTitle{font:800 16px/1.45 "Inter";color:var(--fg)}
 .tMeta{font:700 11px/1 "Inter";color:var(--muted);margin-top:8px}
 
-/* chế độ đọc full-width trong khung 1200px */
+/* reader */
 .readWrap{padding:0 0 40px;}
 .article{
-  background:var(--readerBg); color:var(--fg);
-  border:1px solid var(--border); border-radius:18px;
+  background:var(--readerBg);color:var(--fg);
+  border:1px solid var(--border);border-radius:18px;
   box-shadow:0 40px 120px rgba(0,0,0,.6);
+  cursor:pointer; /* click anywhere to back */
 }
 .article header{padding:16px 16px 6px}
-.article h2{margin:0;font:800 22px "Inter";cursor:pointer}
-.article h2:hover{opacity:.85;text-decoration:underline}
+.article h2{margin:0;font:800 22px "Inter"}
 .article .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px}
 .article .body{padding:0 16px 18px;font-size:16px;line-height:1.8;text-align:justify}
-.article .body img{max-width:100%;height:auto}
 .article .signature{margin:20px 0 0;text-align:center;color:var(--muted);font:700 13px "Inter"}
 
-/* Ẩn/hiện theo trạng thái */
-body.reading #listView,
-body.reading .foot{ display:none; }
-body.reading #readView{ display:block; }
-
-/* 🔧 Footer cố định dưới, KHÔNG đè vì list đã chừa padding-bottom */
-.foot{
-  position:fixed;left:0;right:0;bottom:0;
-  display:flex;align-items:center;justify-content:center;
-  height:var(--footerH); padding:10px 18px;
-  font:700 12px "Inter";color:var(--muted);
-  z-index:2; pointer-events:none;
-  /* Optional: mờ nền nhẹ để tách khỏi nội dung */
-  /* background:linear-gradient(to top, rgba(0,0,0,.05), transparent); */
-}
+/* state */
+body.reading #listView{display:none}
+body.reading #readView{display:block}
 </style>
 </head>
 <body>
@@ -121,16 +82,13 @@ body.reading #readView{ display:block; }
 
 <header class="mast">
   <h1 class="title" id="siteTitle">NOFI.VN</h1>
+  <div class="tagline">Tôi như trẻ nhỏ ngồi bên hiên nhà chờ nghe thế kỷ tàn phai</div>
   <div id="now" class="now"></div>
 </header>
 
-<!-- Thanh công cụ (luôn hiển thị) -->
 <div class="toolbar">
   <div class="input">
-    <input id="q" type="text" inputmode="search"
-           autocomplete="off" autocorrect="off"
-           autocapitalize="none" spellcheck="false"
-           placeholder="Tìm tiêu đề… (gõ để lọc)">
+    <input id="q" type="text" placeholder="Tìm tiêu đề… (gõ để lọc)">
   </div>
   <div class="theme">
     <label for="theme" style="font:700 12px 'Inter';opacity:.75;margin-right:4px">Giao diện:</label>
@@ -142,176 +100,55 @@ body.reading #readView{ display:block; }
   </div>
 </div>
 
-<!-- Chế độ DANH SÁCH -->
-<main id="listView" class="container gridWrap" aria-live="polite">
+<main id="listView" class="container gridWrap">
   <div id="loading">Đang tải bài…</div>
   <section id="grid" class="grid"></section>
 </main>
 
-<!-- Chế độ ĐỌC BÀI -->
 <section id="readView" class="container readWrap" style="display:none">
   <article class="article" id="article">
-    <header><h2 id="rTitle" title="Bấm để quay về danh sách"></h2></header>
+    <header><h2 id="rTitle"></h2></header>
     <div id="rMeta" class="meta"></div>
     <div id="rBody" class="body"></div>
     <div class="signature">─── ❖ ───</div>
   </article>
 </section>
 
-<footer class="foot">Tôi như trẻ nhỏ ngồi bên hiên nhà chờ nghe thế kỷ tàn phai</footer>
-
 <script>
-const BLOG_BASE="https://blognofivn.blogspot.com";
-const WANT_MAX=80;
+const BLOG_BASE="https://blognofivn.blogspot.com",WANT_MAX=80;
 document.getElementById('now').textContent=new Date().toLocaleString('vi-VN');
 
-/* theme init */
 const root=document.documentElement,themeSelect=document.getElementById('theme');
 (function(){const stored=localStorage.getItem('nofi_theme')||'glass';
   root.setAttribute('data-theme',stored);themeSelect.value=stored;})();
-themeSelect.addEventListener('change',()=>{
-  root.setAttribute('data-theme',themeSelect.value);
-  localStorage.setItem('nofi_theme',themeSelect.value);
-});
+themeSelect.addEventListener('change',()=>{root.setAttribute('data-theme',themeSelect.value);localStorage.setItem('nofi_theme',themeSelect.value);});
 
-/* utils */
 const $=(s,el=document)=>el.querySelector(s);
 const fmt=s=>s?new Date(s).toLocaleString('vi-VN'):'';
-const norm=(s='')=>s.toLowerCase()
-  .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-  .replace(/đ/g,'d').replace(/Đ/g,'d');
-const slugify=(t='')=>encodeURIComponent(norm(t).trim().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
+const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'d');
+const slugify=t=>encodeURIComponent(norm(t).trim().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
 
-/* JSONP fetch */
-function jsonp(url){return new Promise((resolve,reject)=>{
-  const cb="cb_"+Math.random().toString(36).slice(2);
-  const sc=document.createElement('script');
-  sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
-  let done=false;
-  window[cb]=(data)=>{done=true;resolve(data);cleanup();};
-  sc.onerror=()=>{if(!done){reject(new Error('JSONP load error'));cleanup();}};
-  function cleanup(){delete window[cb];sc.remove();}
-  document.body.appendChild(sc);
-});}
-async function fetchAllJSONP(base=BLOG_BASE,wanted=WANT_MAX){
-  let url=base.replace(/\/?$/,'')+'/feeds/posts/default?alt=json-in-script&max-results=100';
-  const out=[];
-  for(let i=0;i<10&&out.length<wanted&&url;i++){
-    const d=await jsonp(url);
-    const entries=(d.feed&&d.feed.entry)||[]; out.push(...entries);
-    const next=(d.feed&&d.feed.link||[]).find(l=>l.rel==='next');
-    if(next&&next.href){
-      url=next.href.replace('alt=json','alt=json-in-script');
-      if(!/alt=json-in-script/.test(url)) url+=(url.includes('?')?'&':'?')+'alt=json-in-script';
-    }else url=null;
-  }
-  return out.slice(0,wanted);
-}
+function jsonp(url){return new Promise((resolve,reject)=>{const cb="cb_"+Math.random().toString(36).slice(2);const sc=document.createElement('script');sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb;let done=false;window[cb]=(d)=>{done=true;resolve(d);cleanup();};sc.onerror=()=>{if(!done){reject(new Error('JSONP error'));cleanup();}};function cleanup(){delete window[cb];sc.remove();}document.body.appendChild(sc);});}
+async function fetchAllJSONP(base,wanted){let url=base+'/feeds/posts/default?alt=json-in-script&max-results=100';const out=[];for(let i=0;i<10&&out.length<wanted&&url;i++){const d=await jsonp(url);const e=(d.feed&&d.feed.entry)||[];out.push(...e);const next=(d.feed&&d.feed.link||[]).find(l=>l.rel==='next');if(next&&next.href){url=next.href.replace('alt=json','alt=json-in-script');if(!/alt=json-in-script/.test(url))url+=(url.includes('?')?'&':'?')+'alt=json-in-script';}else url=null;}return out.slice(0,wanted);}
+const SCRIPT_RE=/<script[\s\S]*?<\/script>/gi,STYLE_RE=/<style[\s\S]*?<\/style>/gi;
+function sanitizeHTML(h=''){return h.replace(SCRIPT_RE,'').replace(STYLE_RE,'');}
+function normalize(e){return {title:(e.title&&e.title.$t)||'(Không tiêu đề)',published:e.published?e.published.$t:'',html:sanitizeHTML((e.content&&e.content.$t)||(e.summary&&e.summary.$t)||'')};}
 
-/* sanitize + normalize */
-const SCRIPT_RE=/<script[\s\S]*?<\/script>/gi;
-const STYLE_RE =/<style[\s\S]*?<\/style>/gi;
-function sanitizeHTML(html=''){return(html||'').replace(SCRIPT_RE,'').replace(STYLE_RE,'');}
-function normalize(e){
-  const title=(e.title&&e.title.$t)||'(Không tiêu đề)';
-  const html=(e.content&&e.content.$t)||(e.summary&&e.summary.$t)||'';
-  return {title,published:e.published?e.published.$t:'',html:sanitizeHTML(html)};
-}
+let POSTS=[],SLUG_INDEX=new Map();
+function renderGrid(list){const grid=$('#grid');grid.innerHTML='';list.forEach(p=>{const tile=document.createElement('article');tile.className='tile';tile.innerHTML=`<div class="dot"></div><div style="min-width:0"><div class="tTitle">${p.title}</div><div class="tMeta">${fmt(p.published)}</div></div>`;tile.addEventListener('click',()=>openArticle(p,true));grid.appendChild(tile);});}
 
-/* state */
-let POSTS=[], SLUG_INDEX=new Map();
-
-/* render grid */
-function renderGrid(list){
-  const grid=$('#grid');grid.innerHTML='';
-  list.forEach(p=>{
-    const tile=document.createElement('article');
-    tile.className='tile';
-    tile.innerHTML=`<div class="dot"></div>
-      <div style="min-width:0"><div class="tTitle">${p.title}</div>
-      <div class="tMeta">${fmt(p.published)}</div></div>`;
-    tile.addEventListener('click',()=>openArticle(p,true));
-    grid.appendChild(tile);
-  });
-}
-
-/* search filter (IME-friendly) */
 const qEl=document.getElementById('q');let composing=false,rafId=0;
-function runFilter(){
-  cancelAnimationFrame(rafId);
-  rafId=requestAnimationFrame(()=>{
-    const kw=norm(qEl.value.trim());
-    const filtered=kw?POSTS.filter(p=>norm(p.title).includes(kw)):POSTS;
-    renderGrid(filtered);
-    if(document.body.classList.contains('reading')) goList(false);
-  });
-}
-qEl.addEventListener('compositionstart',()=>{composing=true;});
-qEl.addEventListener('compositionend',()=>{composing=false;runFilter();});
-qEl.addEventListener('input',()=>{if(!composing)runFilter();},{passive:true});
-qEl.addEventListener('keyup',()=>{if(!composing)runFilter();},{passive:true});
-qEl.addEventListener('search',runFilter,{passive:true});
+function runFilter(){cancelAnimationFrame(rafId);rafId=requestAnimationFrame(()=>{const kw=norm(qEl.value.trim());const filtered=kw?POSTS.filter(p=>norm(p.title).includes(kw)):POSTS;renderGrid(filtered);if(document.body.classList.contains('reading')) goList(false);});}
+qEl.addEventListener('compositionstart',()=>{composing=true;});qEl.addEventListener('compositionend',()=>{composing=false;runFilter();});qEl.addEventListener('input',()=>{if(!composing)runFilter();});qEl.addEventListener('keyup',()=>{if(!composing)runFilter();});qEl.addEventListener('search',runFilter);
 
-/* về danh sách */
-function goList(push=true){
-  document.body.classList.remove('reading');
-  $('#readView').style.display='none';
-  if(push){ history.pushState({view:'list'},'',location.pathname); }
-  window.scrollTo({top:0,behavior:'instant'});
-}
-
-/* mở bài */
-function openArticle(p, pushHistory=false){
-  $('#rTitle').textContent=p.title||'(Không tiêu đề)';
-  $('#rMeta').textContent=fmt(p.published);
-  $('#rBody').innerHTML=p.html||'';
-  document.body.classList.add('reading');
-  $('#readView').style.display='block';
-
-  const slug=slugify(p.title);
-  if(pushHistory){ history.pushState({view:'read',slug},'',`#${slug}`); }
-  const toolBottom=document.querySelector('.toolbar').getBoundingClientRect().bottom + window.scrollY;
-  window.scrollTo({top:toolBottom+12,behavior:'smooth'});
-}
-
-/* ESC về danh sách */
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape' && document.body.classList.contains('reading')) goList();
-});
-
-/* Logo & TIÊU ĐỀ BÀI: click để về danh sách */
+function goList(push=true){document.body.classList.remove('reading');$('#readView').style.display='none';if(push)history.pushState({view:'list'},'',location.pathname);}
+function openArticle(p,pushHistory=false){$('#rTitle').textContent=p.title;$('#rMeta').textContent=fmt(p.published);$('#rBody').innerHTML=p.html;document.body.classList.add('reading');$('#readView').style.display='block';if(pushHistory)history.pushState({view:'read'},'',`#${slugify(p.title)}`);}
 document.getElementById('siteTitle').addEventListener('click',()=>goList());
-document.getElementById('rTitle').addEventListener('click',()=>goList());
+$('#article').addEventListener('click',()=>goList()); // 🔧 click anywhere in article
 
-/* Back/Forward */
-window.addEventListener('popstate',()=>{
-  if(location.hash){
-    const slug=decodeURIComponent(location.hash.slice(1));
-    const p=SLUG_INDEX.get(slug);
-    if(p){ openArticle(p,false); return; }
-  }
-  goList(false);
-});
+window.addEventListener('popstate',()=>{if(location.hash){const p=SLUG_INDEX.get(decodeURIComponent(location.hash.slice(1)));if(p){openArticle(p,false);return;}}goList(false);});
 
-/* boot */
-(async()=>{
-  try{
-    const raw=await fetchAllJSONP(BLOG_BASE,WANT_MAX);
-    POSTS=raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
-    POSTS.forEach(p=>SLUG_INDEX.set(slugify(p.title),p));
-    document.getElementById('loading')?.remove();
-    renderGrid(POSTS);
-
-    if(location.hash){
-      const p=SLUG_INDEX.get(decodeURIComponent(location.hash.slice(1)));
-      if(p) openArticle(p,false);
-    }else{
-      history.replaceState({view:'list'},'',location.pathname);
-    }
-  }catch(err){
-    document.getElementById('loading').textContent='Lỗi tải (JSONP): '+err.message;
-  }
-})();
+(async()=>{const raw=await fetchAllJSONP(BLOG_BASE,WANT_MAX);POSTS=raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));POSTS.forEach(p=>SLUG_INDEX.set(slugify(p.title),p));document.getElementById('loading')?.remove();renderGrid(POSTS);})();
 </script>
 </body>
 </html>
