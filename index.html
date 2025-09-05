@@ -20,7 +20,6 @@ html,body{
   font:15.5px/1.65 "Inter",system-ui,sans-serif;
   -webkit-text-size-adjust:none; text-size-adjust:none;
 }
-body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 
 /* ===== THEMES ===== */
 :root[data-theme="glass"]{
@@ -29,7 +28,7 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
   --accent:#7dd3fc; --accent2:#a78bfa;
   --bg1:#1a2440; --bg2:#0b0f14; --bg3:#07090c;
   --link:#8ddcff; --placeholder:rgba(234,233,229,.55);
-  --readerBg:rgba(18,22,27,.92);  /* 💡 modal đậm cho glass */
+  --readerBg:rgba(18,22,27,.92);
 }
 :root[data-theme="sepia"]{
   --fg:#2a2016; --muted:#6a5741;
@@ -37,7 +36,7 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
   --accent:#d97706; --accent2:#a16207;
   --bg1:#f7efdf; --bg2:#f1e6d2; --bg3:#eadcc4;
   --link:#b45309; --placeholder:rgba(42,32,22,.45);
-  --readerBg:#fffdf7;            /* giữ như giấy */
+  --readerBg:#fffdf7;
 }
 :root[data-theme="neon"]{
   --fg:#eceaff; --muted:#bfbaff;
@@ -45,10 +44,10 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
   --accent:#22d3ee; --accent2:#a855f7;
   --bg1:#12022b; --bg2:#0b0122; --bg3:#07001a;
   --link:#67e8f9; --placeholder:rgba(236,234,255,.55);
-  --readerBg:rgba(18,22,27,.92);  /* 💡 modal đậm cho neon */
+  --readerBg:rgba(18,22,27,.92);
 }
 
-/* blobs */
+/* blobs nền */
 .blob{position:fixed;inset:auto auto -22% -12%;width:60vmax;height:60vmax;
   background:radial-gradient(circle at 30% 30%,rgba(125,211,252,.25),transparent 60%);
   filter:blur(40px);pointer-events:none;animation:float 18s ease-in-out infinite alternate;z-index:0}
@@ -58,7 +57,7 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 
 /* header */
 .mast{max-width:1200px;margin:16px auto 8px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
-.title{margin:0;font:900 24px "Merriweather",serif}
+.title{margin:0;font:900 24px "Merriweather",serif;cursor:pointer}
 .now{font:700 12px/1 "Inter";color:var(--muted)}
 
 /* toolbar */
@@ -69,8 +68,11 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 .input input::placeholder{color:var(--placeholder)}
 .theme select{border:0;outline:0;background:transparent;color:var(--fg);font:700 13px "Inter"}
 
-/* grid */
-.gridWrap{max-width:1200px;margin:0 auto calc(60px + var(--footerH));padding:0 18px}
+/* khung chung (giữ bề rộng 4 cột) */
+.container{max-width:1200px;margin:0 auto;padding:0 18px}
+
+/* grid danh sách */
+.gridWrap{margin:0 auto calc(60px + var(--footerH));}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .tile{padding:16px 14px;min-height:120px;display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;cursor:pointer;transition:all .25s}
 .tile:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
@@ -78,53 +80,32 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 .tTitle{font:800 16px/1.45 "Inter";color:var(--fg)}
 .tMeta{font:700 11px/1 "Inter";color:var(--muted);margin-top:8px}
 
-/* overlay */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;z-index:3;transition:opacity .25s}
-.overlay.open{opacity:1;visibility:visible}
+/* chế độ đọc full-width trong khung 1200px */
+.readWrap{padding:0 0 40px;}
+.article{
+  background:var(--readerBg); color:var(--fg);
+  border:1px solid var(--border); border-radius:18px;
+  box-shadow:0 40px 120px rgba(0,0,0,.6);
+}
+.article header{padding:16px 16px 6px}
+.article h2{margin:0;font:800 22px "Inter"}
+.article .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px}
+.article .body{padding:0 16px 18px;font-size:16px;line-height:1.8;text-align:justify}
+.article .body img{max-width:100%;height:auto}
+.article .signature{margin:20px 0 0;text-align:center;color:var(--muted);font:700 13px "Inter"}
 
-/* reader modal (desktop/default) */
-.reader{
-  position:absolute;left:50%;top:140px;transform:translateX(-50%);
-  width:min(1080px,94vw);max-height:75vh;
-  background:var(--readerBg);color:var(--fg);
-  border:1px solid var(--border);border-radius:18px;z-index:4;opacity:0;pointer-events:none;
-  display:flex;flex-direction:column;box-shadow:0 40px 120px rgba(0,0,0,.6);
-  transition:opacity .25s ease;
-}
-.reader.open{opacity:1;pointer-events:auto}
-.reader h2{margin:0;font:800 20px "Inter";padding:14px 16px 4px}
-.reader .meta{font:700 12px "Inter";color:var(--muted);padding:0 16px 10px}
-.reader .body{
-  /* 🔧 BỎ khoảng chừa chân gây hở đáy: */
-  padding:0 16px 16px;
-  font-size:16px;line-height:1.8;text-align:justify;
-  overflow-y:auto;scrollbar-width:none;
-}
-.reader .body::-webkit-scrollbar{display:none}
-.reader .signature{
-  text-align:center;
-  /* 🔧 Không chừa thêm đáy nữa: */
-  margin:20px 0 0;
-  color:var(--muted);
-  font:700 13px "Inter";opacity:0;transition:opacity .2s ease;user-select:none;
-}
+/* Ẩn/hiện theo trạng thái */
+body.reading #listView,
+body.reading .foot{ display:none; }
+body.reading #readView{ display:block; }
 
-/* Mobile: modal dùng fixed để luôn treo theo viewport */
-@media (max-width: 640px){
-  .reader{
-    position:fixed;left:50%;
-    top:var(--topMob, 120px);transform:translateX(-50%);
-    width:94vw;max-height:calc(100vh - var(--topMob) - 8px);
-  }
-}
-
-/* footer (dưới overlay, không nhận click) */
+/* footer chỉ cho trang danh sách */
 .foot{
   position:fixed;left:0;right:0;bottom:0;
   display:flex;align-items:center;justify-content:center;
   height:var(--footerH); padding:10px 18px;
   font:700 12px "Inter";color:var(--muted);
-  z-index:1; pointer-events:none;  /* 💡 không che & không bắt cử chỉ */
+  z-index:1; pointer-events:none;
 }
 </style>
 </head>
@@ -132,10 +113,11 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
 <div class="blob"></div><div class="blob b2"></div>
 
 <header class="mast">
-  <h1 class="title">NOFI.VN</h1>
+  <h1 class="title" id="siteTitle">NOFI.VN</h1>
   <div id="now" class="now"></div>
 </header>
 
+<!-- Thanh công cụ (luôn hiển thị) -->
 <div class="toolbar">
   <div class="input">
     <input id="q" type="text" inputmode="search"
@@ -153,18 +135,21 @@ body.modal-open{ overflow:hidden; } /* khoá nền khi mở modal */
   </div>
 </div>
 
-<main class="gridWrap">
+<!-- Chế độ DANH SÁCH -->
+<main id="listView" class="container gridWrap" aria-live="polite">
   <div id="loading">Đang tải bài…</div>
-  <section id="grid" class="grid" aria-live="polite"></section>
+  <section id="grid" class="grid"></section>
 </main>
 
-<div id="overlay" class="overlay"></div>
-
-<aside id="reader" class="reader" aria-hidden="true">
-  <h2 id="rTitle"></h2>
-  <div id="rMeta" class="meta"></div>
-  <div id="rBody" class="body"></div>
-</aside>
+<!-- Chế độ ĐỌC BÀI -->
+<section id="readView" class="container readWrap" style="display:none">
+  <article class="article" id="article">
+    <header><h2 id="rTitle"></h2></header>
+    <div id="rMeta" class="meta"></div>
+    <div id="rBody" class="body"></div>
+    <div class="signature">─── ❖ ───</div>
+  </article>
+</section>
 
 <footer class="foot">Tôi như trẻ nhỏ ngồi bên hiên nhà chờ nghe thế kỷ tàn phai</footer>
 
@@ -188,6 +173,7 @@ const fmt=s=>s?new Date(s).toLocaleString('vi-VN'):'';
 const norm=(s='')=>s.toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   .replace(/đ/g,'d').replace(/Đ/g,'d');
+const slugify=(t='')=>encodeURIComponent(norm(t).trim().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
 
 /* JSONP fetch */
 function jsonp(url){return new Promise((resolve,reject)=>{
@@ -225,8 +211,10 @@ function normalize(e){
   return {title,published:e.published?e.published.$t:'',html:sanitizeHTML(html)};
 }
 
+/* state */
+let POSTS=[], SLUG_INDEX=new Map();
+
 /* render grid */
-let POSTS=[];
 function renderGrid(list){
   const grid=$('#grid');grid.innerHTML='';
   list.forEach(p=>{
@@ -235,7 +223,7 @@ function renderGrid(list){
     tile.innerHTML=`<div class="dot"></div>
       <div style="min-width:0"><div class="tTitle">${p.title}</div>
       <div class="tMeta">${fmt(p.published)}</div></div>`;
-    tile.addEventListener('click',()=>openReaderFromTile(tile,p));
+    tile.addEventListener('click',()=>openArticle(p,true));
     grid.appendChild(tile);
   });
 }
@@ -248,6 +236,9 @@ function runFilter(){
     const kw=norm(qEl.value.trim());
     const filtered=kw?POSTS.filter(p=>norm(p.title).includes(kw)):POSTS;
     renderGrid(filtered);
+
+    // Nếu đang đọc mà gõ tìm kiếm -> quay về danh sách
+    if(document.body.classList.contains('reading')) goList(false);
   });
 }
 qEl.addEventListener('compositionstart',()=>{composing=true;});
@@ -256,59 +247,67 @@ qEl.addEventListener('input',()=>{if(!composing)runFilter();},{passive:true});
 qEl.addEventListener('keyup',()=>{if(!composing)runFilter();},{passive:true});
 qEl.addEventListener('search',runFilter,{passive:true});
 
-/* open reader */
-function openReaderFromTile(tile,p){
-  const reader=$('#reader'),overlay=$('#overlay'),body=$('#rBody');
-  // set content
-  $('#rTitle').textContent=p.title;
-  $('#rMeta').textContent=fmt(p.published);
-  body.innerHTML=p.html;
-  // signature cuối bài
-  const sig=document.createElement('div');
-  sig.className='signature';
-  sig.textContent='─── ❖ ───';
-  body.appendChild(sig);
-
-  // vị trí dưới toolbar (desktop) & top mobile
-  const tb=document.querySelector('.toolbar').getBoundingClientRect();
-  reader.style.top=Math.round(tb.bottom+45)+'px';
-  // mobile top var
-  const topMob=Math.max(96, Math.round(tb.bottom+24));
-  reader.style.setProperty('--topMob', topMob+'px');
-
-  // mở layer + khoá nền
-  overlay.classList.add('open');
-  reader.classList.add('open');
-  reader.setAttribute('aria-hidden','false');
-  document.body.classList.add('modal-open');
-
-  // show/hide signature theo scroll
-  function onScroll(){
-    const nearBottom=body.scrollTop+body.clientHeight>=body.scrollHeight-5;
-    sig.style.opacity=nearBottom?1:0;
-  }
-  body.addEventListener('scroll',onScroll);
-  onScroll();
-
-  // đóng
-  const close=()=>{
-    overlay.classList.remove('open');
-    reader.classList.remove('open');
-    reader.setAttribute('aria-hidden','true');
-    document.body.classList.remove('modal-open');
-    overlay.removeEventListener('click',close);
-    body.removeEventListener('scroll',onScroll);
-  };
-  overlay.addEventListener('click',close,{once:true});
+/* về danh sách (doBack: có đẩy state không) */
+function goList(push=true){
+  document.body.classList.remove('reading');
+  $('#readView').style.display='none';
+  if(push){ history.pushState({view:'list'},'',location.pathname); }
+  // đưa lên đầu danh sách
+  window.scrollTo({top:0,behavior:'instant'});
 }
+
+/* mở bài: GIỮ header/toolbar, ẩn list + footer, hỗ trợ history/hash */
+function openArticle(p, pushHistory=false){
+  $('#rTitle').textContent=p.title||'(Không tiêu đề)';
+  $('#rMeta').textContent=fmt(p.published);
+  $('#rBody').innerHTML=p.html||'';
+  document.body.classList.add('reading');
+  $('#readView').style.display='block';
+
+  const slug=slugify(p.title);
+  if(pushHistory){
+    history.pushState({view:'read',slug},'',`#${slug}`);
+  }
+  const toolBottom=document.querySelector('.toolbar').getBoundingClientRect().bottom + window.scrollY;
+  window.scrollTo({top:toolBottom+12,behavior:'smooth'});
+}
+
+/* ESC để quay về danh sách */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && document.body.classList.contains('reading')){
+    goList(); // có pushState
+  }
+});
+
+/* Click vào logo/siteTitle để về danh sách */
+document.getElementById('siteTitle').addEventListener('click',()=>goList());
+
+/* Back/Forward của trình duyệt */
+window.addEventListener('popstate',()=>{
+  if(location.hash){
+    const slug=decodeURIComponent(location.hash.slice(1));
+    const p=SLUG_INDEX.get(slug);
+    if(p){ openArticle(p,false); return; }
+  }
+  goList(false); // về list khi không có hash
+});
 
 /* boot */
 (async()=>{
   try{
     const raw=await fetchAllJSONP(BLOG_BASE,WANT_MAX);
     POSTS=raw.map(normalize).sort((a,b)=>new Date(b.published)-new Date(a.published));
+    POSTS.forEach(p=>SLUG_INDEX.set(slugify(p.title),p));
     document.getElementById('loading')?.remove();
     renderGrid(POSTS);
+
+    // Nếu URL có hash -> mở đúng bài
+    if(location.hash){
+      const p=SLUG_INDEX.get(decodeURIComponent(location.hash.slice(1)));
+      if(p) openArticle(p,false);
+    }else{
+      history.replaceState({view:'list'},'',location.pathname);
+    }
   }catch(err){
     document.getElementById('loading').textContent='Lỗi tải (JSONP): '+err.message;
   }
